@@ -666,7 +666,7 @@ Caixa de contorno: **"Sistema de E-commerce de Eletrônicos"**. Dentro: UC-01…
 | **P-13** | Cancelamento é permitido até `EM_SEPARACAO`; depois de enviado, é devolução (fora de escopo). | Regra comum; simplifica o fluxo. |
 | **P-14** | **Alerta de estoque baixo** é um complemento leve para dar sentido ao módulo de estoque e ilustrar um `extend`. | Justificado como boa prática; pode ser removido sem impacto no restante (RF-26, RN-31, UC-20). |
 | **P-15** | **IDs** (RF, RNF, RN, UC) devem ser mantidos nos diagramas e no PDF. | Rastreabilidade entre artefatos. |
-| **P-16** | A ferramenta de modelagem será **PlantUML** (como na APS 1), com fontes `.puml` entregues junto. | Reuso do fluxo `scripts/` e dos padrões já usados. *(Confirmar com o grupo.)* |
+| **P-16** | A ferramenta de modelagem será o **draw.io (diagrams.net)**, com os arquivos-fonte `.drawio`/`.xml` entregues junto e a tabela de símbolos da ferramenta no PDF. | Decisão do grupo; formato editável aceito pelo professor (`.xml` do Draw.io). A estrutura de pastas e documentos da APS 1 é mantida, com o conteúdo adaptado. |
 
 ---
 
