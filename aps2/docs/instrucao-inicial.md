@@ -1,156 +1,89 @@
 Preciso transformar uma descrição inicial de sistema em um documento completo de requisitos para apoiar toda a modelagem UML do projeto.
 
-Objetivo: produzir uma especificação detalhada o suficiente para servir como base para Diagramas de Atividades, Sequência e Classes.
+Objetivo: produzir uma especificação detalhada o suficiente para servir como base para Diagramas de Casos de Uso e de Componentes.
 
 Gere a resposta em Markdown.
 
-Expanda a descrição fornecida e assuma o papel de analista de requisitos. Não invente funcionalidades sem justificativa; quando fizer suposições, deixe explícito que são premissas do projeto. Utilize como base as melhores práticas do mercado nessa área.
-
-O documento deve conter:
-
-# Visão Geral do Sistema
-
-* Objetivo do sistema
-* Problema que resolve
-* Benefícios esperados
-* Escopo
-
-# Atores
-
-* Descrição detalhada de cada ator
-* Responsabilidades
-* Permissões
-* Interações com o sistema
-
-# Requisitos Funcionais
-
-* Organizados por módulos
-* Identificados por RF-01, RF-02...
-* Descrição detalhada
-* Regras de negócio associadas
-
-# Requisitos Não Funcionais
-
-* Segurança
-* Usabilidade
-* Desempenho
-* Disponibilidade
-* Escalabilidade
-* Privacidade
-* Auditoria
-
-# Regras de Negócio
-
-* Todas as regras relevantes para o domínio
-* Restrições
-* Validações
-* Exceções
-
-# Fluxos do Sistema
-
-Para cada fluxo:
-
-* Objetivo
-* Pré-condições
-* Fluxo principal
-* Fluxos alternativos
-* Fluxos de exceção
-* Pós-condições
-
-# Modelo Conceitual
-
-* Principais entidades
-* Responsabilidades de cada entidade
-* Relacionamentos esperados
-
-# Apoio ao Diagrama de Classes
-
-Para cada classe principal:
-
-* Responsabilidade
-* Possíveis atributos
-* Possíveis métodos
-* Relacionamentos com outras classes
-
-# Apoio ao Diagrama de Sequência
-
-Identifique os principais cenários que merecem diagramas de sequência.
-
-# Apoio ao Diagrama de Atividades
-
-Identifique os principais processos que merecem diagramas de atividades.
-
-# Considerações de UX
-
-* Fluxo ideal para os usuários
-* Tratamento de erros
-* Feedback visual
-* Confirmações
-* Boas práticas de acessibilidade
-
-# Premissas e Decisões de Projeto
-
-Liste todas as hipóteses adotadas durante a modelagem.
-
-O resultado deve ser suficientemente detalhado para que uma equipe consiga produzir diagramas UML consistentes sem precisar voltar à descrição original.
-
-Descrição do sistema:
-
-```txt
-Aplicativo de Agendamento de Consultas Médicas
-Descrição: Pacientes podem agendar consultas com médicos de diversas especialidades, escolher horários disponíveis, cancelar ou remarcar. Médicos gerenciam sua agenda. Secretários confirmam consultas.
-
-Atores: Paciente, Médico, Secretário, Sistema de Notificação.
-
-Fluxo principal sugerido:
-
-Paciente escolhe especialidade → seleciona médico → visualiza horários disponíveis → agenda consulta → recebe confirmação → (opcional) cancela ou remarca.
-
-Dicas de classes: Paciente, Medico, Secretario, Especialidade, Consulta, Agenda, Horario, Notificacao
-```
+Expanda a descrição fornecida e assuma o papel de analista de requisitos. Não invente funcionalidades sem justificativa (Importante: não invente algo muito além do escopo sugerido, apenas complemente pra deixar redondo); quando fizer suposições, deixe explícito que são premissas do projeto. Utilize como base as melhores práticas do mercado nessa área.
 
 Aqui temos as instruções dadas pelo professor:
 
-```markdown
-Objetivo do Trabalho:
 
-Cada grupo deverá escolher um dos 4 temas propostos e, a partir da descrição da aplicação, produzir os seguintes artefatos UML:
+# Tema Escoolhido:
 
-- Diagrama de Atividades – representando o fluxo principal da aplicação.
-- Diagrama de Sequência – mostrando a interação entre os atores e o sistema.
-- Diagrama de Classes (macro) – apresentando as principais classes, atributos, métodos e relacionamentos.
+## Site de Loja de Eletrônicos (E-commerce)
 
-Não é necessário implementar código. O foco está na modelagem correta, na clareza dos diagramas e na coerência entre eles.
+- **Requisitos Básicos:** O sistema deve permitir que clientes naveguem por um catálogo de produtos (com filtros por categoria, marca, preço), adicionem itens a um carrinho de compras e finalizem pedidos. Deve haver integração com gateways de pagamento e cálculo de frete. O sistema também precisa de um módulo administrativo para gerenciar estoques, cadastrar produtos e acompanhar o status dos pedidos.
 
-Entregáveis:
-- Capa (integrantes, tema escolhido)
-- Descrição da aplicação (mínimo 1 página)
-- Diagrama(s) de Atividades
-- Diagrama(s) de Sequência
-- Diagrama(s) de Classes
-- Considerações finais do grupo
-```
+# Objetivo do Trabalho
 
-Instruções do professor para a construção dos diagramas:
+O objetivo deste trabalho é aplicar os conceitos práticos de UML (Unified Modeling Language) através da elaboração de Diagramas de Casos de Uso e Diagramas de Componentes. Os alunos deverão escolher um dos quatro temas propostos abaixo para desenvolver a modelagem, compreendendo os requisitos do sistema e mapeando suas funcionalidades e arquitetura.
 
-```markdown
-Instruções para a Construção dos Diagramas
+# Regras e Diretrizes para o Desenvolvimento
 
-1. Diagrama de Atividades
+O trabalho deve ser entregue contendo os dois diagramas e suas respectivas documentações. Atente-se às regras de modelagem exigidas para cada um:
 
-Use nó inicial, ações, decisões (diamantes), fork/join (se houver paralelismo) e nó final.
-Represente pelo menos um fluxo alternativo (ex.: pagamento recusado, livro indisponível).
-Pode ser dividido em raias (swimlanes) por ator, se ajudar na clareza.
+# PARTE 1: Diagrama de Casos de Uso
 
-2. Diagrama de Sequência
+O diagrama de casos de uso deve oferecer uma visão clara das funcionalidades do sistema sob a perspectiva do usuário. O modelo deve obrigatoriamente conter:
 
-Escolha um cenário principal (ex.: “Realizar Pedido”).
-Mostre as mensagens trocadas em ordem temporal.
-Inclua mensagens de retorno quando fizer sentido.
+- Fronteira do Sistema: Delimitar claramente o escopo do que está sendo modelado (caixa de contorno com o nome do sistema).
+- Elementos do Diagrama:
+    - Atores: Identificar atores principais (usuários diretos) e atores secundários (sistemas externos, gateways de pagamento, etc.).
+    - Casos de Uso: Representar as funcionalidades principais (ex: "Realizar Compra", "Cadastrar Viagem").
+- Relacionamentos:
+    - Associação: Comunicação direta entre o ator e o caso de uso.
+    - Generalização: Aplicada a atores (ex: "Usuário VIP" herdando de "Usuário Comum") ou casos de uso.
+    - Dependência (<<include>> e <<extend>>): Utilizar obrigatoriamente inclusão (para passos obrigatórios/reutilizáveis, ex: "Autenticar Usuário") e extensão (para fluxos alternativos/opcionais).
+- Documentação Textual (Especificação):
+    - Para cada caso de uso modelado, deve ser criada uma breve descrição contendo: Nome do Caso de Uso e uma Descrição Textual resumida de sua funcionalidade e objetivo no sistema.
 
-3. Diagrama de Classes (macro)
+    ![alt text](image.png)
 
-Foque nas classes principais (não precisa detalhar tudo).
-Inclua atributos, métodos relevantes e relacionamentos (associação, herança, composição, multiplicidade).
-Indique visibilidade (+, -, #) quando possível.
-```
+# PARTE 2: Diagrama de Componentes
+
+O diagrama de componentes deve representar a estrutura arquitetural do sistema, mostrando como as partes do software estão organizadas e como se comunicam. O modelo deve obrigatoriamente conter:
+
+- Componentes Lógicos/Físicos: Representar os módulos principais do sistema (ex: MóduloDePagamento, InterfaceWeb, BancoDeDados, MotorDeBusca).
+- Interfaces Fornecidas e Requeridas:
+    - Interfaces Fornecidas (Provided): Representadas pelo símbolo de "pirulito" (lollipop), mostrando os serviços que o componente oferece aos demais.
+    - Interfaces Requeridas (Required): Representadas pelo símbolo de soquete (socket), mostrando os serviços que o componente precisa de outros para funcionar.
+- Relacionamentos de Dependência: Mostrar claramente através de setas tracejadas quando um componente depende do funcionamento ou compilação de outro (ou de uma interface específica).
+- Portas (Ports) - Opcional/Recomendado: Utilizar portas para demonstrar os pontos de interação encapsulados dos componentes com o ambiente externo.
+- Organização: Se o sistema for complexo, agrupar os componentes em pacotes/subsistemas (ex: Frontend, Backend, Serviços Externos) para facilitar a leitura da arquitetura.
+
+# Entregáveis do Trabalho
+
+Os alunos deverão organizar as entregas em dois artefatos principais: um Documento de Projeto (PDF) e os Arquivos Fontes da Modelagem.
+
+1. Documento de Projeto (Formato PDF) Este documento deve conter toda a especificação do trabalho e ser estruturado da seguinte forma:
+
+- Capa e Identificação: Nome dos componentes do grupo, matrícula e tema escolhido.
+
+- Visão Geral do Sistema: Um parágrafo resumindo o escopo do tema selecionado e os principais requisitos compreendidos pelo grupo.
+
+- Seção de Casos de Uso:
+    - Imagem do Diagrama de Casos de Uso (com boa resolução e legibilidade).
+    - Especificação Textual: Para cada caso de uso modelado no diagrama, incluir uma tabela ou texto contendo:
+        - Nome do Caso de Uso
+        - Atores Envolvidos
+        - Pré-condições
+        - Fluxo Principal (passo a passo de sucesso)
+        - Fluxos Alternativos ou de Exceção (quando aplicável, como erros de validação).
+
+- Seção de Componentes (Projeto Arquitetural):
+    - Imagem do Diagrama de Componentes.
+    - Dicionário de Componentes: Uma breve lista descrevendo a responsabilidade de cada componente desenhado e justificando suas dependências e interfaces requeridas/fornecidas.
+
+2. Arquivos Fontes da Ferramenta de Modelagem Para garantir a autoria e permitir a conferência detalhada, o grupo deve entregar os arquivos editáveis gerados pela ferramenta de modelagem escolhida (Exemplos: arquivos .asta do Astah, .mdj do StarUML, .xml do Draw.io, ou o link de compartilhamento se for utilizado o Lucidchart).
+
+3. Lista de símbolos.  Algumas plataformas, utilizam símbolos diferentes para representar a mesma informação. No trabalho, coloquem uma tabela com a lista de símbolos utilizados pela ferramenta escolhida. Citem também a ferramenta utilizada
+
+**Formato de Submissão:** Os artefatos (PDF e Arquivos Fontes) podem ser compactados em um único arquivo .zip e submetidos no ambiente virtual de aprendizagem até a data limite estipulada. O arquivo deve ser nomeado no padrão: Tema_NomeDoGrupo.zip. Em caso de envio em arquivos separados, enviar no formato: GRUPOxx - NOME DO TEMA - TIPO DO ARQUIVO (ex: Grupo1 - tema XPTO - Diagrama de componente)
+
+## OBSERVAÇÕES:
+
+- Todos os membros devem enviar o trabalho final, sob penalização da nota individual.
+    - Envios em atraso também acarretará penalidade na nota individual.
+- Devem enviar nesta atividade a versão final do projeto. Em caso de envio incompleto ou diferente do que for mostrado durante as apresentações, o grupo sofrerá penalização de 40% sobre a nota coletiva.
+- Será mantida a regra de presença mínima de 70% do grupo no dia da apresentação.
