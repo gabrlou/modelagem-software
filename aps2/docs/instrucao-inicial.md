@@ -1,10 +1,19 @@
-Preciso transformar uma descrição inicial de sistema em um documento completo de requisitos para apoiar toda a modelagem UML do projeto.
+Preciso transformar uma descrição inicial de sistema em um documento de requisitos enxuto para apoiar toda a modelagem UML do projeto.
 
-Objetivo: produzir uma especificação detalhada o suficiente para servir como base para Diagramas de Casos de Uso e de Componentes.
+Objetivo: produzir uma especificação objetiva (apenas o necessário) para servir como base para Diagramas de Casos de Uso e de Componentes.
 
 Gere a resposta em Markdown.
 
 Expanda a descrição fornecida e assuma o papel de analista de requisitos. Não invente funcionalidades sem justificativa (Importante: não invente algo muito além do escopo sugerido, apenas complemente pra deixar redondo); quando fizer suposições, deixe explícito que são premissas do projeto. Utilize como base as melhores práticas do mercado nessa área.
+
+## Adendos do professor (orientações adicionais, valem sobre o restante)
+
+- **Diagrama de Casos de Uso:** focar apenas nos **principais** casos de uso — **uns 4**. Não modelar todas as funcionalidades do sistema.
+- **Diagrama de Componentes:** entregar **dois níveis**:
+    - **Geral (macro):** visão de todos os componentes do sistema e suas interfaces/dependências;
+    - **Micro (detalhado):** um diagrama para **cada componente principal**, mostrando os **componentes internos** dele (componentes dos componentes).
+- **Cobertura mínima nos uns 4 casos de uso:** escolhê-los de forma que, juntos, contemplem atores principais e secundários, generalização, `<<include>>` e `<<extend>>`.
+- **Simplicidade:** requisitos e demais artefatos devem ser **bem simples e objetivos**; não é necessário detalhar demais (poucas regras, poucos fluxos, sem excesso de variações).
 
 Aqui temos as instruções dadas pelo professor:
 
@@ -72,8 +81,8 @@ Os alunos deverão organizar as entregas em dois artefatos principais: um Docume
         - Fluxos Alternativos ou de Exceção (quando aplicável, como erros de validação).
 
 - Seção de Componentes (Projeto Arquitetural):
-    - Imagem do Diagrama de Componentes.
-    - Dicionário de Componentes: Uma breve lista descrevendo a responsabilidade de cada componente desenhado e justificando suas dependências e interfaces requeridas/fornecidas.
+    - Imagens dos Diagramas de Componentes: o **geral** e um **micro** para cada componente principal (componentes internos).
+    - Dicionário de Componentes: Uma breve lista descrevendo a responsabilidade de cada componente desenhado (geral e internos dos micros) e justificando suas dependências e interfaces requeridas/fornecidas.
 
 2. Arquivos Fontes da Ferramenta de Modelagem Para garantir a autoria e permitir a conferência detalhada, o grupo deve entregar os arquivos editáveis gerados pela ferramenta de modelagem escolhida (Exemplos: arquivos .asta do Astah, .mdj do StarUML, .xml do Draw.io, ou o link de compartilhamento se for utilizado o Lucidchart).
 
