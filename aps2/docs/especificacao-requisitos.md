@@ -384,7 +384,7 @@ Aplicação web em camadas, com serviços externos acessados por **adaptadores**
 | Pedidos | Finalização do pedido, status e cancelamento | `IPedidos` | `ICarrinho`, `IEstoque`, `IFrete`, `IPagamento`, `INotificacao`, `IDados` (via Repositórios) |
 | Estoque | Disponibilidade, reserva, baixa e ajustes | `IEstoque` | `IDados` (via Repositórios) |
 | Notificações | Monta e envia e-mails de status | `INotificacao` | `IEmail` |
-| Adaptador de Pagamento | Fala com o gateway de pagamento | `IPagamento`, `IConfirmacao` (webhook) | `IGateway` (externo) |
+| Adaptador de Pagamento | Fala com o gateway de pagamento | `IPagamento`, `IConfirmacao` (webhook) | `IGateway` (externo), `IPedidos` (repassa a confirmação do pagamento) |
 | Adaptador de Frete | Fala com o serviço de frete | `IFrete` | `IServicoFrete` (externo) |
 | Adaptador de E-mail | Fala com o serviço de e-mail | `IEmail` | `IServicoEmail` (externo) |
 | Banco de Dados | Persistência | `IDados` | Nenhuma |
@@ -405,10 +405,11 @@ São dois diagramas micro: um do **Frontend** e um do **Backend**.
 | Carrinho e Finalização do Pedido | Carrinho, frete, pagamento e confirmação (CU-02 e CU-03) |
 | Meus Pedidos | Acompanhar e cancelar pedidos (CU-04 e CU-08) |
 | Login e Cadastro | Cadastro e autenticação do cliente (CU-09 e CU-12) |
+| Login do Administrador | Autenticação do administrador para entrar no painel (CU-09) |
 | Gestão de Produtos / Estoque / Pedidos | Telas do administrador (CU-05 e CU-06) |
-| Cliente da API | Sessão e requisições HTTPS; **requer** `IApi` |
+| Comunicação com a API | Sessão e requisições HTTPS; **requer** `IApi` |
 
-(Catálogo e Busca, Carrinho e Finalização do Pedido, Meus Pedidos e Login e Cadastro pertencem à Interface da Loja; as três Gestões, ao Painel Administrativo.)
+(Catálogo e Busca, Carrinho e Finalização do Pedido, Meus Pedidos e Login e Cadastro pertencem à Interface da Loja; o Login do Administrador e as três Gestões, ao Painel Administrativo.)
 
 **Micro 2: Backend** (três pacotes, ligados por setas tracejadas de dependência)
 

@@ -218,6 +218,7 @@
 \renewcommand{\contentsname}{SUMÁRIO}
 \pdfbookmark[0]{\contentsname}{toc}
 \tableofcontents
+\thispagestyle{empty}
 \newpage
 
 \pagestyle{fancy}
@@ -636,7 +637,15 @@ Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,lab
 A arquitetura é apresentada em dois níveis: um diagrama \textbf{geral},
 com todos os componentes do sistema, e dois diagramas \textbf{micro},
 que mostram os componentes internos do \emph{Frontend} e do
-\emph{Backend}.
+\emph{Backend}. Esses dois foram escolhidos porque têm um nível
+interno que o diagrama geral não mostra: telas e cliente da API no Frontend;
+controladores, segurança, camadas e repositórios no Backend. Os demais pacotes
+não precisam de um micro: os adaptadores de Integrações e o Banco de Dados são
+componentes simples, sem partes internas projetadas, e os Serviços Externos
+são sistemas de terceiros. No diagrama geral, o Frontend e o
+Backend aparecem como pacotes, pois agrupam componentes. Nos micros, são
+desenhados como componentes, para mostrar as interfaces e as portas da borda
+de cada um.
 
 \subsection{Visão Geral}
 
@@ -650,12 +659,16 @@ serviço. O Backend conhece apenas a interface do adaptador, então trocar de
 gateway, de frete ou de e-mail muda só o adaptador e não altera o restante do
 sistema.
 
+\subsection{Diagrama}
+
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth,keepaspectratio]{../assets/CMP_Geral.pdf}
+\includegraphics[width=\textwidth,keepaspectratio]{../assets/CMP_Geral.pdf}
 \caption{Diagrama de Componentes: visão geral}
 \fonte{elaborado pelos autores no draw.io (2026).}
 \end{figure}
+
+A figura mostra os cinco pacotes e como os componentes se ligam por interfaces. As setas tracejadas entre os pacotes indicam dependência: o Frontend depende do Backend, o Backend depende das Integrações e do pacote Dados, e as Integrações dependem dos Serviços Externos. Os módulos usam o banco de dados por meio dos Repositórios (descritos na seção~\ref{sec:backend-detalhe}); por isso a dependência de \texttt{IDados} aparece no nível do pacote Backend, e não em cada módulo.
 
 \subsection{Dicionário de Componentes}
 
@@ -679,7 +692,7 @@ Carrinho & Itens e subtotal. & \texttt{ICarrinho} & \texttt{ICatalogo}\\ \hline
 Pedidos & Finalização do pedido, status e cancelamento. & \texttt{IPedidos} & \texttt{ICarrinho}, \texttt{IEstoque}, \texttt{IFrete}, \texttt{IPagamento}, \texttt{INotificacao}, \texttt{IDados} (via Repositórios)\\ \hline
 Estoque & Disponibilidade, reserva, baixa e ajustes. & \texttt{IEstoque} & \texttt{IDados} (via Repositórios)\\ \hline
 Notificações & Monta e envia e-mails de status. & \texttt{INotificacao} & \texttt{IEmail}\\ \hline
-Adaptador de Pagamento & Comunica-se com o gateway de pagamento. & \texttt{IPagamento}, \texttt{IConfirmacao} & \texttt{IGateway}\\ \hline
+Adaptador de Pagamento & Comunica-se com o gateway de pagamento. & \texttt{IPagamento}, \texttt{IConfirmacao} & \texttt{IGateway}, \texttt{IPedidos}\\ \hline
 Adaptador de Frete & Comunica-se com o serviço de frete. & \texttt{IFrete} & \texttt{IServicoFrete}\\ \hline
 Adaptador de E-mail & Comunica-se com o serviço de e-mail. & \texttt{IEmail} & \texttt{IServicoEmail}\\ \hline
 Banco de Dados & Persistência dos dados. & \texttt{IDados} & Nenhuma\\ \hline
@@ -703,7 +716,7 @@ Gateway de Pagamento, Serviço de Frete, Serviço de E-mail (externos) & Serviç
 \texttt{IUsuarios} & Cadastro, login e perfis de usuário.\\ \hline
 \texttt{ICatalogo} & Consulta de produtos, categorias e marcas, com filtros e busca.\\ \hline
 \texttt{ICarrinho} & Gerenciamento dos itens e do subtotal do carrinho.\\ \hline
-\texttt{IPedidos} & Criação de pedidos, acompanhamento do status e cancelamento.\\ \hline
+\texttt{IPedidos} & Criação de pedidos, acompanhamento do status e cancelamento. Também recebe do adaptador de pagamento o aviso de pagamento confirmado.\\ \hline
 \texttt{IEstoque} & Consulta de disponibilidade, reserva, baixa e ajuste das quantidades.\\ \hline
 \texttt{INotificacao} & Envio de avisos ao cliente sobre o pedido.\\ \hline
 \texttt{IPagamento} & Cobrança e estorno de pagamentos. Oferecida pelo adaptador de pagamento.\\ \hline
@@ -714,27 +727,56 @@ Gateway de Pagamento, Serviço de Frete, Serviço de E-mail (externos) & Serviç
 \texttt{IGateway}, \texttt{IServicoFrete}, \texttt{IServicoEmail} & Serviços oferecidos pelos sistemas externos: cobrança e estorno, cotação de frete e envio de e-mail.\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
 
-\paragraph{Leitura do diagrama.} As setas tracejadas entre os pacotes indicam dependência: o Frontend depende do Backend, o Backend depende das Integrações e as Integrações dependem dos Serviços Externos. \textbf{Nota:} o pacote Integrações reúne os três adaptadores (pagamento, frete e e-mail) e fica entre o Backend e os Serviços Externos. Assim, só ele conhece os detalhes dos serviços de fora. Os módulos usam o banco de dados por meio dos Repositórios (descritos na seção \ref{sec:backend-detalhe}); por isso a dependência de \texttt{IDados} aparece no nível do pacote Backend, e não em cada módulo.
-
 \paragraph{Justificativa das dependências.} A \emph{API} é o único ponto
 de entrada, o que centraliza segurança e controle de perfil. \emph{Pedidos}
 depende de \emph{Carrinho}, \emph{Estoque} e \emph{Notificações} e, pelos
 adaptadores, dos serviços de frete e de pagamento, porque a finalização do
-pedido orquestra todos eles. O
+pedido coordena todos eles. O
 \emph{Catálogo} consulta \emph{Estoque} para exibir a disponibilidade, e o
 \emph{Carrinho} obtém preço e disponibilidade pelo \emph{Catálogo}.
 Nenhum módulo de negócio acessa serviço externo diretamente, apenas
 pelos adaptadores. Há duas \textbf{portas}: a porta HTTPS da \emph{API}
 (entrada pública) e a porta de \emph{webhook} do \emph{Adaptador de
-Pagamento} (confirmação de Pix e boleto). Por essa porta, o gateway chama a interface \texttt{IConfirmacao} do adaptador para avisar que o pagamento foi confirmado.
+Pagamento} (confirmação de Pix e boleto). Por essa porta, o gateway chama a interface \texttt{IConfirmacao} do adaptador para avisar que o pagamento foi confirmado, e o adaptador repassa o aviso ao \emph{Pedidos} pela interface \texttt{IPedidos}, que então marca o pedido como pago.
+
+\paragraph{Por que cada dependência existe.} O quadro a seguir resume, para cada componente, a interface que ele requer e o motivo.
+
+{\small
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}p{3.8cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Dependências e motivos (visão geral)}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Componente} & \textbf{Requer} & \textbf{Por que}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Componente} & \textbf{Requer} & \textbf{Por que}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Interface da Loja e Painel Administrativo & \texttt{IApi} & Toda ação das telas chega ao Backend por um único ponto de entrada. \\ \hline
+API & \texttt{IUsuarios}, \texttt{ICatalogo}, \texttt{ICarrinho}, \texttt{IPedidos}, \texttt{IEstoque} & Recebe a solicitação e a encaminha ao módulo responsável (login, consulta, carrinho, pedido, estoque). \\ \hline
+Catálogo & \texttt{IEstoque} & Mostrar se o produto está disponível. \\ \hline
+Carrinho & \texttt{ICatalogo} & Obter o preço e a disponibilidade dos itens adicionados. \\ \hline
+Pedidos & \texttt{ICarrinho} & Ler os itens que serão comprados. \\ \hline
+Pedidos & \texttt{IEstoque} & Reservar e dar baixa nas quantidades. \\ \hline
+Pedidos & \texttt{IFrete} & Calcular o valor e o prazo de entrega. \\ \hline
+Pedidos & \texttt{IPagamento} & Cobrar e estornar o pagamento. \\ \hline
+Pedidos & \texttt{INotificacao} & Avisar o cliente a cada mudança de status. \\ \hline
+Notificações & \texttt{IEmail} & Enviar a mensagem por e-mail. \\ \hline
+Usuários, Catálogo, Estoque e Pedidos & \texttt{IDados} (via Repositórios) & Gravar e consultar dados. Só os Repositórios acessam o banco. \\ \hline
+Adaptadores de pagamento, frete e e-mail & \texttt{IGateway}, \texttt{IServicoFrete}, \texttt{IServicoEmail} & Falar com o serviço externo correspondente, traduzindo o formato. \\ \hline
+Adaptador de Pagamento & \texttt{IPedidos} & Repassar a confirmação de Pix ou boleto, para o pedido ser marcado como pago. \\ \hline
+Gateway de Pagamento & \texttt{IConfirmacao} & Avisar o adaptador (webhook) quando o pagamento é confirmado. \\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}}
 
 \subsection{Detalhe Interno: Frontend}
 
 O \emph{Frontend} reúne as duas aplicações de interface. Cada uma é
 dividida em telas (componentes internos) que compartilham o componente
-\emph{Cliente da API}, responsável pela sessão e pelas requisições
+\emph{Comunicação com a API}, responsável pela sessão e pelas requisições
 HTTPS. Esse é o único ponto do Frontend que requer a interface
-\texttt{IApi}.
+\texttt{IApi}. As telas são independentes entre si: nenhuma chama a outra. Todas
+usam a \emph{Comunicação com a API} para falar com o Backend, por isso a seta
+\emph{usa} sai do bloco de cada aplicação, e não de cada tela.
 
 \begin{figure}[H]
 \centering
@@ -756,11 +798,12 @@ HTTPS. Esse é o único ponto do Frontend que requer a interface
 Catálogo e Busca & Listagem, filtros, busca e detalhes dos produtos (CU\nobreakdash-01).\\ \hline
 Carrinho e Finalização do Pedido & Carrinho, escolha de frete e pagamento e confirmação do pedido (CU\nobreakdash-02 e CU\nobreakdash-03).\\ \hline
 Meus Pedidos & Consulta e cancelamento de pedidos (CU\nobreakdash-04 e CU\nobreakdash-08).\\ \hline
-Login e Cadastro & Cadastro de cliente e autenticação (CU\nobreakdash-09 e CU\nobreakdash-12).\\ \hline
+Login e Cadastro & Cadastro de cliente e autenticação do cliente (CU\nobreakdash-09 e CU\nobreakdash-12).\\ \hline
+Login do Administrador & Autenticação do administrador para entrar no painel (CU\nobreakdash-09).\\ \hline
 Gestão de Produtos & Cadastro, edição e inativação de produtos (CU\nobreakdash-05).\\ \hline
 Gestão de Estoque & Ajuste de quantidades em estoque (CU\nobreakdash-05).\\ \hline
 Gestão de Pedidos & Consulta de pedidos e atualização de status (CU\nobreakdash-06, que dispara o CU\nobreakdash-13).\\ \hline
-Cliente da API & Mantém a sessão e envia as requisições HTTPS; requer \texttt{IApi}.\\ \arrayrulecolor{black}\bottomrule
+Comunicação com a API & Mantém a sessão e envia as requisições HTTPS; requer \texttt{IApi}.\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
 
 \subsection{Detalhe Interno: Backend}\label{sec:backend-detalhe}
@@ -769,16 +812,24 @@ O \emph{Backend} é organizado em três pacotes (camadas): a \textbf{camada
 de API} (controladores e segurança), os \textbf{módulos de negócio} e o
 \textbf{acesso a dados}. As setas tracejadas indicam que a camada de API usa
 as interfaces dos módulos e que os módulos usam o acesso a dados. Cada
-módulo oferece a sua própria interface (círculo). A camada de API corresponde ao componente API do diagrama geral e fornece
-\texttt{IApi} pelas portas no topo, uma para cada controlador; \emph{Pedidos} requer \texttt{IPagamento}
-e \texttt{IFrete}, \emph{Notificações} requer \texttt{IEmail} e os
-\emph{Repositórios} requerem \texttt{IDados}, todos por portas na base. As
-dependências entre os módulos (por exemplo, Pedidos usando Carrinho) já
-aparecem no diagrama geral e não são repetidas aqui.
+módulo oferece a sua própria interface (círculo), e os soquetes entre os
+módulos mostram quem usa quem: \emph{Catálogo} usa \texttt{IEstoque},
+\emph{Carrinho} usa \texttt{ICatalogo}, e \emph{Pedidos} usa
+\texttt{ICarrinho}, \texttt{IEstoque} e \texttt{INotificacao}.
+
+A camada de API corresponde ao componente API do diagrama geral e fornece
+\texttt{IApi} pelas portas no topo, uma para cada controlador. Essas duas portas
+detalham a porta HTTPS da API do diagrama geral: a da loja atende o Frontend da
+loja e a administrativa atende o painel. Na base do diagrama ficam as portas do
+próprio Backend, por onde ele chega ao exterior: \emph{Pedidos} requer
+\texttt{IPagamento} e \texttt{IFrete}, \emph{Notificações} requer \texttt{IEmail}
+e os \emph{Repositórios} requerem \texttt{IDados}. A quarta porta da base é de
+entrada: ela fornece \texttt{IPedidos} ao adaptador de pagamento, que repassa a
+confirmação do pagamento ao \emph{Pedidos}, como no diagrama geral.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth,height=0.5\textheight,keepaspectratio]{../assets/CMP_Backend.pdf}
+\includegraphics[width=0.85\textwidth,height=0.5\textheight,keepaspectratio]{../assets/CMP_Backend.pdf}
 \caption{Diagrama de Componentes: detalhe do Backend}
 \fonte{elaborado pelos autores no draw.io (2026).}
 \end{figure}
@@ -805,7 +856,7 @@ Repositórios & Gravam e consultam os dados dos módulos; requerem \texttt{IDado
 
 Os diagramas foram elaborados no \textbf{draw.io} (diagrams.net).
 
-{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\small\rowcolors{2}{ghbg}{white}
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\footnotesize\rowcolors{2}{ghbg}{white}
 \begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.2cm}|>{\raggedright\arraybackslash}p{5.6cm}|>{\raggedright\arraybackslash}X}
 \rowcolor{white}\caption{Símbolos do diagrama de casos de uso (ferramenta: draw.io)}\\
 \arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
@@ -825,7 +876,7 @@ Generalização & Linha com ponta de triângulo vazada & Herança entre atores (
 \texttt{<<extend>>} & Seta tracejada com estereótipo, ligada por linha tracejada a uma nota com a condição & Fluxo opcional que estende outro caso de uso, só quando a condição é verdadeira.\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
 
-{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\small\rowcolors{2}{ghbg}{white}
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\footnotesize\rowcolors{2}{ghbg}{white}
 \begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.2cm}|>{\raggedright\arraybackslash}p{5.6cm}|>{\raggedright\arraybackslash}X}
 \rowcolor{white}\caption{Símbolos do diagrama de componentes (ferramenta: draw.io)}\\
 \arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
@@ -846,6 +897,28 @@ Banco de dados & Cilindro & Local onde os dados são guardados.\\ \arrayrulecolo
 
 
 % =========================================================================
+\vspace{0.6em}
+\noindent As cores dos diagramas são leves e servem só para agrupar elementos, sem significado em UML. O significado está nas formas e nas linhas, então os diagramas continuam legíveis em preto e branco.
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\footnotesize\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.2cm}|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Cores usadas nos diagramas}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Onde} & \textbf{Cor} & \textbf{O que agrupa}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Onde} & \textbf{Cor} & \textbf{O que agrupa}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Casos de uso & Azul & Casos de uso principais, acionados diretamente por um ator (CU-01 a CU-06 e CU-12).\\ \hline
+Casos de uso & Amarelo & Casos de uso de apoio, reutilizados ou opcionais (CU-07 a CU-11 e CU-13).\\ \hline
+Componentes & Azul & Pacote Frontend (telas e comunicação com a API).\\ \hline
+Componentes & Verde & Pacote Backend (API, módulos de negócio e acesso a dados).\\ \hline
+Componentes & Amarelo & Pacote Integrações (adaptadores dos serviços externos).\\ \hline
+Componentes & Lilás & Pacote Serviços Externos (sistemas de terceiros).\\ \hline
+Componentes & Salmão & Pacote Dados (banco de dados).\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
 \section*{REFERÊNCIAS}
 \addcontentsline{toc}{section}{REFERÊNCIAS}
 
@@ -966,7 +1039,7 @@ API & Ponto de entrada do backend. Recebe as solicitações das telas e as encam
 Adaptador & Componente que faz a ``tradução'' entre o sistema e um serviço externo. Assim, o serviço pode ser trocado sem alterar o resto do sistema.\\ \hline
 Controlador & Componente da API que recebe as solicitações de um tipo de usuário (cliente ou administrador) e as repassa aos módulos.\\ \hline
 Repositório & Componente que grava e consulta os dados no banco de dados.\\ \hline
-Cliente da API & Componente do frontend que envia as solicitações das telas à API e mantém a sessão do usuário (o login ativo).\\ \hline
+Comunicação com a API & Componente do frontend que envia as solicitações das telas à API e mantém a sessão do usuário (o login ativo).\\ \hline
 Interface & Conjunto de serviços de um componente. A \emph{fornecida} (círculo) é o que ele oferece; a \emph{requerida} (meio-círculo) é o que ele precisa de outro componente.\\ \hline
 Porta & Ponto de entrada ou saída de um componente, por onde ele se comunica com o ambiente externo.\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
