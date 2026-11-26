@@ -6,13 +6,12 @@ Gere a resposta em Markdown.
 
 Expanda a descrição fornecida e assuma o papel de analista de requisitos. Não invente funcionalidades sem justificativa (Importante: não invente algo muito além do escopo sugerido, apenas complemente pra deixar redondo); quando fizer suposições, deixe explícito que são premissas do projeto. Utilize como base as melhores práticas do mercado nessa área.
 
-## Adendos do professor (orientações adicionais, valem sobre o restante)
+## Adendos (orientações adicionais, valem sobre o restante)
 
-- **Diagrama de Casos de Uso:** focar apenas nos **principais** casos de uso — **uns 4**. Não modelar todas as funcionalidades do sistema.
+- **Diagrama de Casos de Uso:** um único diagrama com os casos de uso do sistema (principais e de apoio); cada caso é descrito em uma tabela logo depois. Deve conter atores principais e secundários, generalização, `<<include>>` e `<<extend>>`.
 - **Diagrama de Componentes:** entregar **dois níveis**:
     - **Geral (macro):** visão de todos os componentes do sistema e suas interfaces/dependências;
-    - **Micro (detalhado):** um diagrama para **cada componente principal**, mostrando os **componentes internos** dele (componentes dos componentes).
-- **Cobertura mínima nos uns 4 casos de uso:** escolhê-los de forma que, juntos, contemplem atores principais e secundários, generalização, `<<include>>` e `<<extend>>`.
+    - **Micro (detalhado):** diagramas mostrando os **componentes internos** (componentes dos componentes). Foram escolhidos dois: Frontend e Backend.
 - **Simplicidade:** requisitos e demais artefatos devem ser **bem simples e objetivos**; não é necessário detalhar demais (poucas regras, poucos fluxos, sem excesso de variações).
 
 Aqui temos as instruções dadas pelo professor:

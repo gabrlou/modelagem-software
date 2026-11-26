@@ -35,6 +35,9 @@
 % --- Tabelas e alinhamentos ---
 \usepackage{array}
 \usepackage{tabularx}
+\usepackage{xltabular}
+\usepackage{needspace}
+\usepackage{enumitem}
 \usepackage{booktabs}
 \usepackage{etoolbox}
 
@@ -42,6 +45,7 @@
 \usepackage{graphicx}
 \graphicspath{{../assets/}{assets/}}
 \usepackage{float}
+\usepackage{pdflscape}
 
 % --- Cabeçalhos e paginação ABNT (NBR 14724 item 5.3) ---
 % Numeração arábica visível no canto superior direito (2 cm do topo, 2 cm da borda direita).
@@ -87,21 +91,24 @@
   singlelinecheck=false,
   skip=6pt
 }
-\captionsetup[figure]{name=Figura, labelsep=endash}
-\captionsetup[table]{name=Quadro, labelsep=endash}
+\captionsetup[figure]{name=Figura, labelsep=colon}
+\captionsetup[table]{name=Quadro, labelsep=colon}
 
 % "Fonte:" abaixo de figuras e quadros
 \newcommand{\fonte}[1]{%
   \par\vspace{2pt}%
-  {\footnotesize\raggedright\textbf{Fonte:} #1\par}%
+  {\footnotesize\centering\textbf{Fonte:} #1\par}%
 }
 
 % Espaçamento simples dentro de figuras e quadros (exigência ABNT)
 \AtBeginEnvironment{figure}{\singlespace}
 \AtBeginEnvironment{table}{\singlespace}
+\AtBeginEnvironment{xltabular}{\singlespace}
 
 % --- Códigos-fonte (PlantUML) ---
-\usepackage{xcolor}
+\usepackage[table]{xcolor}
+\definecolor{ghlight}{RGB}{225,229,233}
+\definecolor{ghbg}{RGB}{246,248,250}
 \usepackage{listings}
 % pdfLaTeX: converte UTF-8 -> latin1 nos listings (garante acentuação correta)
 \ifdefined\pdftexversion
@@ -138,11 +145,8 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{}
 \urlstyle{same}
 
-\begin{document}
 
-% =========================================================================
-% ELEMENTOS PRÉ-TEXTUAIS (NBR 14724)
-% =========================================================================
+\begin{document}
 
 % --- CAPA ---
 \begin{titlepage}
@@ -155,15 +159,18 @@
 
     \vspace{3.2cm}
     {\large
-    Carlos Eduardo Freire da Silva\\
-    Gabriel Henrique Lourenço Dias\\
-    Kayque Vicente Silva\\
-    Luiz Pedro Pereira Mendes Saraiva\\
-    Yury Nogueira de Oliveira Silva\par}
+    \begin{tabular}{@{}l@{\hspace{2.5em}}l@{}}
+      \textbf{Nome} & \textbf{Matrícula}\\[0.2cm]
+      Carlos Eduardo Freire da Silva & 202602990\\
+      Gabriel Henrique Lourenço Dias & 202602992\\
+      Kayque Vicente Silva & 202605511\\
+      Luiz Pedro Pereira Mendes Saraiva & 202605512\\
+      Yury Nogueira de Oliveira Silva & 202600700\\
+    \end{tabular}\par}
 
     \vspace{3.5cm}
-    \textbf{\Large SISTEMA DE AGENDAMENTO DE CONSULTAS MÉDICAS}\\[0.4cm]
-    \textbf{\large Modelagem de Software --- APS 1}\par
+    \textbf{\Large SITE DE LOJA DE ELETRÔNICOS (E-COMMERCE)}\\[0.4cm]
+    \textbf{\large Modelagem de Software: APS2}\par
 
     \vfill
     \textbf{GOIÂNIA}\\[0.2cm]
@@ -182,8 +189,8 @@
   Yury Nogueira de Oliveira Silva\par}
 
   \vspace{4.0cm}
-  \textbf{\Large SISTEMA DE AGENDAMENTO DE CONSULTAS MÉDICAS}\\[0.4cm]
-  \textbf{\large Modelagem de Software --- APS 1}\par
+  \textbf{\Large SITE DE LOJA DE ELETRÔNICOS (E-COMMERCE)}\\[0.4cm]
+  \textbf{\large Modelagem de Software: APS2}\par
 \end{center}
 
 \vspace{2.5cm}
@@ -193,8 +200,7 @@
       {\small Trabalho acadêmico apresentado à disciplina de Modelagem
       de Software do curso de Bacharelado em Engenharia de Software da
       Universidade Federal de Goiás (UFG), como requisito parcial de
-      avaliação referente à Atividade Prática Supervisionada (APS
-      1).\\[0.4cm]
+      avaliação referente à Atividade Prática Supervisionada (APS2).\\[0.4cm]
       \textbf{Professor Orientador:} Prof. Me. Diogo Oliveira Santos}
     \end{singlespace}
   \end{minipage}
@@ -207,892 +213,756 @@
 \end{center}
 \newpage
 
-% --- SUMÁRIO (NBR 6027) ---
+% --- SUMÁRIO ---
 \thispagestyle{empty}
 \renewcommand{\contentsname}{SUMÁRIO}
 \pdfbookmark[0]{\contentsname}{toc}
 \tableofcontents
 \newpage
 
-% =========================================================================
-% ELEMENTOS TEXTUAIS (início da numeração de página visível - NBR 14724)
-% =========================================================================
-
 \pagestyle{fancy}
 \thispagestyle{fancy}
 
-\section{Descrição da Aplicação}\label{sec:descricao}
+% =========================================================================
+\section{Visão Geral do Sistema}\label{sec:visao}
 
-\subsection{Contexto e Objetivos}\label{sec:contexto}
+\subsection{Descrição e Contexto}
 
-Este trabalho apresenta a modelagem de um sistema web para utilização
-em clínicas e consultórios, que permite que os usuários realizem
-agendamentos de consultas e, para a clínica, o gerenciamento da agenda
-de atendimento de diversos médicos e suas especialidades.
+O tema escolhido é o \textbf{Site de Loja de Eletrônicos (e-commerce)}, uma
+loja virtual de produtos eletrônicos de consumo, como smartphones, notebooks,
+tablets, televisores, fones de ouvido e acessórios. O público são consumidores
+finais, que compram pela internet e recebem o pedido em casa. Como esse tipo de
+produto tem muitos modelos, marcas e faixas de preço, o cliente navega por um
+catálogo com filtros por categoria, marca e preço, adiciona itens a um
+carrinho e finaliza o pedido. O pagamento e o cálculo de frete são feitos por
+serviços externos (um \textbf{gateway de pagamento} e um \textbf{serviço de
+frete}), e o cliente é avisado por e-mail sobre o andamento do pedido. Do lado
+da loja, uma \textbf{área administrativa} permite cadastrar produtos, controlar
+o estoque, que é limitado e muda a cada venda, e acompanhar o status dos
+pedidos.
 
-Temos como objetivo principal dar autonomia ao usuário para que ele
-consiga, a qualquer momento, realizar um agendamento na clínica
-desejada, selecionando a especialidade e o médico e definindo o horário,
-sem precisar fazer ligações ou enviar mensagens, agilizando assim o
-processo de agendamento, remarcação e cancelamento de consultas. Além
-disso, a equipe da clínica passa a ter um melhor gerenciamento da agenda
-de seus médicos especialistas, ganhando agilidade no processo e
-permitindo que os próprios médicos cadastrem seus horários, enquanto o
-administrador tem uma visão geral do funcionamento da clínica.
+Este trabalho apresenta os casos de uso em um único diagrama, descritos em
+tabelas, e a arquitetura em diagramas de componentes, em dois níveis. Os
+requisitos completos estão no Apêndice~\ref{sec:apendice} e os termos técnicos
+são explicados no Apêndice~\ref{sec:termos}.
 
-\subsection{Problema de Negócio e Solução Proposta}\label{sec:problema}
+\subsection{Escopo}
 
-Processos manuais em clínicas costumam gerar sobrecarga na recepção,
-marcações duplas no mesmo horário e alto índice de faltas pela falta de
-lembretes práticos. Além disso, controles em planilhas ou papel
-dificultam o remanejamento rápido de horários cancelados e não oferecem
-histórico confiável para auditoria.
-
-O sistema resolve esses problemas ao centralizar as agendas em uma base
-única, aplicando validação em tempo real e bloqueio de horários para
-impedir conflitos entre pacientes que desejam um mesmo horário. Para
-reduzir as faltas, a aplicação envia confirmações e lembretes
-simultaneamente por e-mail e WhatsApp, os dois canais mais usados no dia
-a dia. Além disso, todas as ações críticas (agendamentos, confirmações,
-cancelamentos e remarcações com motivo obrigatório e alterações de
-grade) geram registros de auditoria com autor, data/hora, IP e
-navegador, apoiando a rastreabilidade e a conformidade com a LGPD. Ao
-armazenar o motivo de cada cancelamento ou remarcação, cria-se um histórico
-que ajuda a clínica a entender por que os horários são liberados.
-
-\subsection{Atores do Sistema}\label{sec:atores}
-
-O sistema conta com cinco atores bem definidos:
-
-\begin{enumerate}
+\noindent\textbf{Dentro do escopo:}
+\begin{itemize}
 \tightlist
-\item
-  \textbf{Paciente:} cadastra-se com CPF, e-mail e telefone celular;
-  autentica-se com senha segura; pesquisa médicos por especialidade;
-  consulta a grade de horários disponíveis; e gerencia suas consultas
-  (agendamento, histórico, remarcação e cancelamento). Recebe
-  notificações automáticas por e-mail e WhatsApp, inclusive um lembrete
-  24 horas antes da consulta.
-\item
-  \textbf{Médico:} profissional cadastrado com CRM, UF e especialidades
-  ativas. Configura sua disponibilidade semanal (dias de atendimento,
-  horário de expediente e duração das consultas); bloqueia horários
-  pontuais por conveniência; visualiza sua agenda; confirma as próprias
-  consultas; e registra o status do atendimento (iniciando, concluindo
-  ou registrando a ausência do paciente). Não agenda, cancela nem
-  remarca consultas.
-\item
-  \textbf{Secretário:} profissional da recepção. Acompanha as agendas de
-  todos os médicos, gerencia as consultas pendentes de confirmação (com
-  contato proativo com pacientes quando necessário), registra
-  confirmações ou recusas e pode agendar, remarcar ou cancelar consultas
-  a pedido de pacientes presenciais ou por telefone.
-\item
-  \textbf{Administrador:} responsável pelos cadastros dentro do sistema.
-  Cadastra e mantém médicos e secretários e gerencia o catálogo de
-  especialidades (ativar e desativar). Não agenda nem altera consultas.
-\item
-  \textbf{Sistema de Notificação:} componente secundário que roda em
-  segundo plano. Funciona a partir dos eventos gerados pelas operações
-  da clínica e envia as mensagens em paralelo por e-mail e WhatsApp, com
-  fila de retentativas automáticas caso ocorra instabilidade temporária
-  na rede, garantindo que o agendamento nunca trave por falha de envio.
-\end{enumerate}
+\item cadastro e autenticação de clientes e do administrador;
+\item catálogo de produtos, com navegação, filtros e busca;
+\item carrinho de compras;
+\item finalização do pedido, com cálculo de frete e pagamento (cartão, Pix ou boleto);
+\item consulta e cancelamento de pedidos pelo cliente;
+\item área administrativa: produtos, estoque e status dos pedidos;
+\item avisos por e-mail ao cliente.
+\end{itemize}
 
-\subsection{Módulos Funcionais e Regras de Negócio}\label{sec:modulos-regras}
+\noindent\textbf{Fora do escopo:}
+\begin{itemize}
+\tightlist
+\item cupons e promoções;
+\item avaliações de produtos;
+\item troca e devolução;
+\item nota fiscal;
+\item marketplace (vários vendedores) e aplicativo nativo.
+\end{itemize}
 
-O sistema é organizado em seis módulos complementares:
+\subsection{Premissas}\label{sec:premissas}
 
 \begin{itemize}
 \tightlist
-\item
-  \textbf{Módulo de Cadastro e Autenticação:} responsável pelo
-  gerenciamento e pela autenticação de todos os usuários da clínica e
-  pacientes. Exige e-mail único para todos e CPF único para pacientes.
-  Médicos são cadastrados pelo par CRM/UF, dados únicos nacionalmente.
-  Os perfis de acesso são exclusivos (\texttt{PACIENTE},
-  \texttt{MEDICO}, \texttt{SECRETARIO}, \texttt{ADMINISTRADOR}).
-  Pacientes se cadastram sozinhos; médicos e secretários são cadastrados
-  pelo administrador. As senhas são armazenadas sob hash criptográfico,
-  com bloqueio temporário após sucessivas tentativas incorretas.
-\item
-  \textbf{Módulo de Consulta de Médicos e Especialidades:} o
-  administrador gerencia a lista de especialidades (apenas ativas
-  aceitam novos agendamentos). Permite a busca pública de especialidades
-  e a filtragem de médicos ativos vinculados a cada catálogo.
-\item
-  \textbf{Módulo de Agenda do Médico:} organiza a grade do profissional
-  em intervalos de \textbf{30 minutos por padrão}, configuráveis pelo
-  médico em blocos de 30 minutos, sem sobreposição. Cada intervalo
-  possui estado bem definido (\texttt{LIVRE}, \texttt{BLOQUEADO} ou
-  \texttt{OCUPADO}). Os horários ficam disponíveis para reserva dentro
-  do expediente do médico, respeitando uma antecedência mínima
-  configurável e um limite máximo de até 90 dias no futuro. Permite ao
-  médico aplicar bloqueios operacionais pontuais.
-\item
-  \textbf{Módulo de Agendamento:} guia o paciente em quatro passos
-  (especialidade, médico, data/horário e confirmação do resumo) e
-  centraliza todo o ciclo da reserva. Ao confirmar, o sistema reserva o horário utilizando trava atômica (bloqueio exclusivo no banco de dados) para impedir marcações concorrentes no mesmo slot e grava a consulta como \texttt{AGENDADA}. Abrange também o
-  histórico de consultas e as operações de \textbf{cancelamento e
-  remarcação} (pelo paciente titular ou pelo secretário): ambas exigem
-  antecedência mínima de 2 horas (bloqueando a ação no sistema caso
-  falte menos de 2 h) e \textbf{motivo obrigatório}. No cancelamento, o
-  slot volta imediatamente a \texttt{LIVRE}. A remarcação mantém o mesmo
-  médico, cancelando a consulta antiga, ocupando o novo horário e
-  criando uma nova consulta \texttt{AGENDADA} com reversão automática em
-  caso de falha.
-\item
-  \textbf{Módulo de Confirmação (Secretário):} apoia a rotina da
-  recepção através de uma visão centralizada das consultas pendentes de
-  confirmação. Permite o contato proativo com os pacientes presenciais
-  ou telefônicos e o registro de confirmações (transicionando a consulta
-  para \texttt{CONFIRMADA}) ou recusas, gravando autor e data da
-  confirmação. A confirmação é \textbf{opcional}, permitindo que o
-  médico inicie o atendimento mesmo que a consulta permaneça com status
-  \texttt{AGENDADA}.
-\item
-  \textbf{Módulo de Notificação:} funciona em segundo plano, disparando
-  avisos assíncronos e em paralelo por e-mail e WhatsApp nos eventos de
-  agendamento, confirmação, cancelamento, remarcação e lembrete prévio
-  de 24 horas. Cada canal possui registro próprio de entrega com fila de
-  até 3 tentativas e backoff. Uma falha de entrega não cancela a consulta
-  nem interrompe o fluxo do usuário. Os eventos críticos do sistema são
-  registrados em log imutável de auditoria com rastreabilidade de autor,
-  data/hora e IP.
+\item O sistema é um \textbf{web app responsivo}.
+\item Cadastro e autenticação foram acrescentados, pois finalizar pedido e
+  acessar a área administrativa pressupõem identificação.
+\item Há um \textbf{único perfil administrativo}.
+\item As formas de pagamento são \textbf{cartão, Pix e boleto}, todas pelo
+  gateway de pagamento.
+\item O visitante pode montar o carrinho; a autenticação é exigida só na
+  finalização do pedido.
+\item O único canal de notificação é o \textbf{e-mail}.
+\item Categorias e marcas são criadas pelo administrador ao cadastrar o produto.
+\item O pedido aguardando pagamento é cancelado após um prazo, e o estoque reservado é devolvido.
+\item Os produtos e as categorias citados são exemplos adotados pelo grupo; o
+  catálogo real é cadastrado pelo administrador.
 \end{itemize}
-
-\subsection{Ciclo de Vida da Consulta}\label{sec:ciclo}
-
-\begin{table}[H]
-\centering
-\caption{Ciclo de vida da consulta}
-\label{qua:ciclo}
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}X@{}}
-\toprule
-De & Evento & Para & Quem pode \\
-\midrule
---- & agendar & \texttt{AGENDADA} & Paciente, Secretário \\
-\texttt{AGENDADA} & confirmar & \texttt{CONFIRMADA} & Secretário, Médico titular \\
-\texttt{AGENDADA}, \texttt{CONFIRMADA} & iniciar & \texttt{EM\_ANDAMENTO} & Médico titular \\
-\texttt{AGENDADA}, \texttt{CONFIRMADA} & cancelar ($\geq$ 2 h, com motivo) & \texttt{CANCELADA} & Paciente titular, Secretário \\
-\texttt{AGENDADA}, \texttt{CONFIRMADA} & remarcar ($\geq$ 2 h, com motivo) & \texttt{REMARCADA} (e nova \texttt{AGENDADA}) & Paciente titular, Secretário \\
-\texttt{AGENDADA}, \texttt{CONFIRMADA} & horário passou sem início & \texttt{NAO\_REALIZADA} & Sistema \\
-\texttt{AGENDADA}, \texttt{CONFIRMADA}, \texttt{EM\_ANDAMENTO} & registrar ausência & \texttt{NAO\_REALIZADA} & Médico titular \\
-\texttt{EM\_ANDAMENTO} & encerrar & \texttt{REALIZADA} & Médico titular \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\texttt{CANCELADA}, \texttt{REMARCADA}, \texttt{REALIZADA} e
-\texttt{NAO\_REALIZADA} são estados finais de cada consulta.
-
-\newpage
-\subsection{Quem Recebe Cada Notificação}\label{sec:notificacoes}
-
-Cada evento gera uma notificação por destinatário e por canal (e-mail e
-WhatsApp).
-
-\begin{table}[H]
-\centering
-\caption{Destinatários das notificações por evento}
-\label{qua:notificacoes}
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}Xcc@{}}
-\toprule
-Evento & Paciente & Médico \\
-\midrule
-Agendamento & sim & não \\
-Confirmação & sim & sim \\
-Cancelamento & sim & sim \\
-Remarcação & sim & sim \\
-Lembrete (24 h antes) & sim & não \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\subsection{Escopo e Premissas}\label{sec:escopo}
-
-\begin{itemize}
-\tightlist
-\item
-  A aplicação é um \textbf{web app responsivo}; não há aplicativo
-  nativo.
-\item
-  Ficam \textbf{fora do escopo}: prontuário eletrônico, prescrições,
-  pagamento, convênios, nota fiscal, teleconsulta e várias clínicas
-  (multiclínica).
-\item
-  Há um único contexto de clínica.
-\item
-  A auditoria cobre eventos de negócio (criar, confirmar, cancelar,
-  remarcar, bloquear horário e alterar cadastro), não leituras.
-\end{itemize}
-
-\section{Diagramas de Atividades}\label{sec:atividades}
-
-Fizemos um único diagrama de atividades, o \textbf{DA-01}, com o fluxo
-principal de agendamento e todos os caminhos alternativos e de erro.
-Como ele já cobre o que foi pedido, não criamos diagramas separados para
-cancelar, remarcar e confirmar consulta; esses processos estão
-explicados nas seções~\ref{sec:modulos-regras} e~\ref{sec:ciclo}.
-
-\subsection{DA-01 --- Agendamento de Consulta}\label{sec:da01}
-
-\textbf{Objetivo:} mostrar o passo a passo do paciente para agendar uma
-consulta, do login até receber o comprovante, incluindo o que acontece
-quando algo dá errado.
-
-\textbf{Quem participa (raias):} Paciente, Sistema e Sistema de
-Notificação.
-
-\textbf{Como funciona:} o paciente faz login (se ainda não estiver
-logado), escolhe a especialidade, o médico e um horário livre, confere o
-resumo e confirma. O sistema reserva o horário de uma vez só, para dois
-pacientes não pegarem a mesma vaga, grava a consulta como
-\texttt{AGENDADA}, marca o horário como \texttt{OCUPADO} e registra a
-auditoria. Depois disso, o fluxo se divide em duas partes que andam ao
-mesmo tempo: o sistema mostra o comprovante ao paciente e o Sistema de
-Notificação envia as mensagens. O envio também se divide em dois, e-mail
-e WhatsApp, cada um com até 3 tentativas e com seu próprio resultado
-(\texttt{ENVIADA} ou \texttt{FALHOU}). No fim tudo se junta, mas o
-comprovante não fica esperando o envio.
-
-\begin{figure}[H]
-\centering
-\caption{DA-01 --- Diagrama de atividades: agendamento de consulta}
-\label{fig:da01}
-\includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{../assets/DA01_Agendamento.pdf}
-\fonte{Elaborado pelos autores (2026).}
-\end{figure}
-
-\textbf{Como ler o diagrama:} as raias separam o que cada ator faz. Os
-laços (\texttt{repeat}) voltam para a escolha de horário quando não há
-vagas, quando o horário está fora da janela ou quando outro paciente
-pegou o horário, e voltam para o resumo depois de um novo login. Os
-blocos rosa são os caminhos alternativos e de erro. O \emph{fork/join}
-mostra o que acontece ao mesmo tempo: o comprovante aparece enquanto as
-mensagens são enviadas, e se o envio falhar o agendamento continua
-valendo.
-
-\textbf{Onde cada fluxo alternativo (A) e de erro (E) aparece no DA-01:}
-
-\begin{table}[H]
-\centering
-\caption{Fluxos alternativos e de exceção do DA-01}
-\label{qua:fluxos-da01}
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{6.8cm}>{\raggedright\arraybackslash}X@{}}
-\toprule
-Fluxo & Onde aparece no diagrama \\
-\midrule
-Login inicial & No começo, em ``Sessão autenticada?''; se o login falhar, o fluxo termina \\
-A1 --- sem horários & ``Há horários disponíveis?'' não $\rightarrow$ o sistema sugere outros dias $\rightarrow$ o paciente escolhe outro período ou médico (volta para a escolha de horário) ou desiste \\
-A2 --- horário tomado por outro paciente & ``Slot ainda disponível?'' não $\rightarrow$ aviso ``Este horário acabou de ser ocupado'' $\rightarrow$ volta para a escolha de horário \\
-A3 --- falha no envio da mensagem & No Sistema de Notificação: falha no envio $\rightarrow$ até 3 tentativas $\rightarrow$ \texttt{FALHOU}; a consulta continua \texttt{AGENDADA} \\
-E1 --- sessão expirou & ``Sessão ainda válida?'' não $\rightarrow$ novo login $\rightarrow$ volta para o resumo da consulta \\
-E2 --- falha ao gravar & ``Persistência bem-sucedida?'' não $\rightarrow$ desfaz tudo (o horário volta a \texttt{LIVRE}) $\rightarrow$ mensagem de erro \\
-E3 --- horário fora da janela & ``Horário dentro da janela permitida?'' não $\rightarrow$ bloqueia a seleção e explica a restrição \\
-Desistências & ``Paciente confirma?'' não, ou ``Escolhe outro período ou outro médico?'' não \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\section{Diagramas de Sequência}\label{sec:sequencia}
-
-O \textbf{DS-01} cobre o mesmo cenário do DA-01 sob uma perspectiva
-diferente: enquanto o diagrama de atividades mapeia \emph{o que}
-acontece, o diagrama de sequência revela \emph{como} os participantes se
-comunicam para que isso aconteça. Ele ordena cronologicamente as
-mensagens trocadas entre o paciente, o sistema, os objetos de negócio
-(\texttt{Agenda}, \texttt{Horario}, \texttt{Consulta},
-\texttt{Notificacao}) e o Sistema de Notificação, incluindo os retornos
-e todos os cenários alternativos e de exceção.
-
-\subsection{DS-01 --- Agendamento de Consulta (Fluxo Completo)}\label{sec:ds01}
-
-\textbf{Objetivo:} documentar, mensagem a mensagem, o que acontece
-durante um agendamento. Os pontos centrais são a reserva atômica do
-horário --- que previne conflitos de concorrência ---, a criação da
-consulta e o rollback em caso de falha, e o envio assíncrono e paralelo
-das notificações por e-mail e WhatsApp.
-
-\textbf{Cenário representado:} um paciente autenticado seleciona
-especialidade, médico e horário, e conclui o agendamento. O diagrama
-trata todas as situações excepcionais relevantes: ausência de horários
-disponíveis, seleção de horário fora da janela permitida, sessão
-expirada, tentativa de reservar um horário já ocupado por outro
-paciente, falha de gravação no banco e falha no envio da notificação.
-
-\begin{figure}[H]
-\centering
-\caption{DS-01 --- Diagrama de sequência: agendamento de consulta}
-\label{fig:ds01}
-\includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{../assets/DS01_Agendamento.pdf}
-\fonte{Elaborado pelos autores (2026).}
-\end{figure}
-
-\textbf{Explicação dos pontos-chave:}
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Reserva atômica (mensagens 17--18):} quando o paciente
-  confirma o horário, o sistema chama \texttt{Horario.ocupar()} em uma
-  única operação indivisível. Se outro paciente chegou primeiro, o
-  método lança \texttt{HorarioIndisponivelException} e o fluxo segue
-  para A2 --- nunca existe uma janela de tempo entre ``verificar
-  disponibilidade'' e ``efetivar a reserva'' que permita duas
-  confirmações simultâneas do mesmo slot.
-\item
-  \textbf{Rollback em caso de falha (mensagem 25):} se a criação da
-  \texttt{Consulta} falha por problema de persistência (E2), o sistema
-  desfaz imediatamente a reserva chamando \texttt{Horario.liberar()},
-  devolvendo o slot ao estado \texttt{LIVRE}. Nenhuma notificação é
-  disparada nesse caso, garantindo consistência entre os dados e o que o
-  paciente recebe.
-\item
-  \textbf{Criação de objetos em tempo de execução (mensagens 23, 29 e
-  30):} \texttt{Consulta} e os dois objetos \texttt{Notificacao} --- um
-  por canal --- só existem a partir do momento em que são criados no
-  fluxo (setas \texttt{<{}<create>{}>}). Isso torna explícito que a
-  criação é parte do processo de agendamento, e não algo pré-existente.
-  A mensagem 15, \texttt{agendar(...)}, corresponde à operação
-  \texttt{Paciente.agendar(medico, especialidade, horario)} do diagrama
-  de classes.
-\item
-  \textbf{Paralelismo no envio (mensagem 31 em diante):} assim que a
-  consulta é gravada com sucesso, o bloco \texttt{par} divide o fluxo em
-  três ramos simultâneos: entrega do comprovante ao paciente, envio por
-  e-mail e envio por WhatsApp. Esse comportamento espelha os
-  \emph{forks} do DA-01. As setas com ponta aberta
-  (\texttt{-{}>{}>}) indicam que as chamadas ao Sistema de Notificação
-  são assíncronas --- o sistema não espera a confirmação de entrega para
-  liberar o paciente.
-\item
-  \textbf{Retentativas independentes por canal (mensagens 32--43):}
-  cada canal possui seu próprio laço de até 3 tentativas com
-  \emph{backoff} entre elas. Quando uma entrega é confirmada, o bloco
-  \texttt{break} encerra o laço daquele canal. Após 3 falhas
-  consecutivas, o status do objeto \texttt{Notificacao} passa para
-  \texttt{FALHOU} --- mas isso afeta apenas o canal em questão; o outro
-  canal continua normalmente e o status da consulta permanece
-  \texttt{AGENDADA}.
-\item
-  \textbf{Papel do participante \texttt{Sistema}:} representa a camada
-  de aplicação, que orquestra todo o fluxo. As mensagens que chegam a
-  ele (\texttt{iniciarAgendamento}, \texttt{selecionarMedico},
-  \texttt{selecionarHorario} e outras) são operações do controlador da
-  aplicação, e não métodos diretos das classes de domínio. Essa
-  separação é intencional: ela mantém o diagrama focado na lógica de
-  negócio e na interação entre os objetos, sem misturar detalhes de
-  telas ou de interface com as classes do sistema.
-\end{itemize}
-
-A tabela abaixo mapeia cada fluxo alternativo (A) e de exceção (E) às
-mensagens do diagrama onde ele é tratado:
-
-\begin{table}[H]
-\centering
-\caption{Correspondência dos fluxos com as mensagens do DS-01}
-\label{qua:fluxos-ds01}
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{5.5cm}>{\raggedright\arraybackslash}X@{}}
-\toprule
-Fluxo & Mensagens \\
-\midrule
-A1 --- sem horários & 10 \\
-E3 --- fora da janela & 13 \\
-E1 --- sessão expirada & 16 \\
-A2 --- horário ocupado & 17 a 21 \\
-E2 --- falha de persistência & 24 a 26 \\
-A3 --- falha na notificação & 36 e 37 (e-mail) e 42 e 43 (WhatsApp), em laços com até 3 tentativas \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\section{Diagrama de Classes --- Nível Macro}\label{sec:classes}
-
-O diagrama de classes estrutura a visão estática do domínio com 11
-classes e 9 enumerações, mapeando os relacionamentos essenciais, a
-visibilidade dos membros e as regras de multiplicidade para guiar a
-implementação.
-
-\subsection{DC --- Diagrama de Classes (Nível Macro)}\label{sec:dc}
-
-\textbf{Objetivo:} apresentar a estrutura orientada a objetos do
-sistema: classes principais, atributos tipados, métodos essenciais,
-enumerações e relacionamentos (herança, associação e composição), com
-multiplicidades e visibilidade (\texttt{+} público, \texttt{-} privado,
-\texttt{\#} protegido).
-
-\begin{figure}[H]
-\centering
-\caption{Diagrama de classes (nível macro)}
-\label{fig:classes}
-\includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{../assets/DC_Classes.pdf}
-\fonte{Elaborado pelos autores (2026).}
-\end{figure}
-
-\newpage
-\subsubsection*{Explicação dos Elementos e Notação UML}
-
-Na UML, o símbolo \texttt{+} indica visibilidade pública, \texttt{-}
-representa privada e \texttt{\#} indica protegida. Os atributos da
-classe \texttt{Usuario} usam \texttt{\#} (protegidos) para permitir que
-as subclasses os herdem e acessem diretamente; para as demais classes, o
-padrão é manter atributos privados e métodos públicos. Nos
-relacionamentos, o losango preenchido marca a composição, o triângulo
-vazio indica a herança e a linha simples mostra a associação.
-
-\subsubsection*{Estrutura de Perfis (Herança)}
-
-A classe abstrata \texttt{Usuario} centraliza as informações básicas de
-identificação e autenticação (\texttt{id}, \texttt{nome}, \texttt{email},
-\texttt{senhaHash}, \texttt{telefone}, \texttt{status} e
-\texttt{criadoEm}), além de conter os métodos de segurança. A partir
-dela, o sistema se divide em quatro perfis estritos de acesso:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Paciente:} adiciona o atributo \texttt{cpf} ao cadastro.
-\item
-  \textbf{Medico:} exige as credenciais de \texttt{crm} e \texttt{ufCrm}.
-\item
-  \textbf{Secretario:} inclui o atributo \texttt{matricula}.
-\item
-  \textbf{Administrador:} agrupa as operações exclusivas de gestão e
-  cadastro da clínica.
-\end{itemize}
-
-\subsubsection*{Dependência de Existência (Composição)}
-
-Neste tipo de ligação estrutural, o objeto-todo governa o ciclo de vida
-das suas partes:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Medico -- Agenda (1:1):} todo médico possui uma agenda única,
-  que perde o sentido e deixa de existir caso o profissional seja
-  desvinculado.
-\item
-  \textbf{Agenda -- Horario (1:1..*):} a agenda fragmenta o expediente em
-  slots de atendimento; sem a agenda matriz, esses horários não existem
-  de forma autônoma.
-\item
-  \textbf{Consulta -- Notificacao (1:0..*):} as mensagens pertencem à
-  consulta que as originou, mantendo o registro de envios atrelado ao
-  evento clínico.
-\end{itemize}
-
-\subsubsection*{Vínculos Operacionais (Associações)}
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Medico -- Especialidade (0..*:1..*):} um médico atende a uma ou
-  múltiplas especialidades, e uma especialidade pode ter vários médicos
-  vinculados.
-\item
-  \textbf{Horario -- Consulta (1:0..*):} um mesmo horário retém o
-  histórico de todas as consultas que passaram por ele ao longo do tempo
-  (como uma consulta cancelada que cedeu espaço para outra), mas admite no
-  máximo uma ativa por vez.
-\item
-  \textbf{Paciente -- Consulta (1:0..*):} cada consulta pertence
-  obrigatoriamente a exatamente um paciente titular, enquanto o paciente
-  acumula o histórico de seus agendamentos.
-\item
-  \textbf{Medico -- Consulta (1:0..*):} cada consulta é conduzida por
-  exatamente um médico responsável, enquanto o médico atende a diversas
-  consultas na clínica.
-\item
-  \textbf{Especialidade -- Consulta (1:0..*):} fixa qual especialidade foi
-  selecionada no momento da marcação, já que o médico pode atuar em mais
-  de uma.
-\item
-  \textbf{Consulta -- Consulta (0..1:0..1, \texttt{remarcadaDe}):}
-  associação reflexiva na qual a nova consulta aponta para a consulta
-  anterior cancelada, sendo opcional (\texttt{0..1}) pois agendamentos
-  comuns não derivam de outra.
-\item
-  \textbf{Consulta -- Usuario (0..*:0..1, \texttt{confirmadaPor} e
-  \texttt{canceladaPor}):} identifica qual operador executou as ações.
-  Cruzando isso com \texttt{confirmadaEm}, \texttt{canceladaEm} e
-  \texttt{motivoCancelamento}, obtém-se a rastreabilidade completa do
-  ciclo de vida da consulta.
-\item
-  \textbf{Usuario -- Auditoria (1:0..*):} associação simples (e não
-  composição) para assegurar que os logs de auditoria sobrevivam de forma
-  imutável e independente da conta do usuário.
-\end{itemize}
-
-\subsubsection*{Domínios e Regras (Enumerações)}
-
-\begin{itemize}
-\tightlist
-\item
-  \texttt{Perfil}: trava as contas em \texttt{PACIENTE}, \texttt{MEDICO},
-  \texttt{SECRETARIO} ou \texttt{ADMINISTRADOR}.
-\item
-  \texttt{StatusUsuario}: restringe a situação cadastral a
-  \texttt{ATIVO}, \texttt{INATIVO} ou \texttt{BLOQUEADO}.
-\item
-  \texttt{StatusEspecialidade}: chaveia a disponibilidade no catálogo
-  entre \texttt{ATIVA} ou \texttt{INATIVA}.
-\item
-  \texttt{StatusConsulta}: mapeia o ciclo de atendimento em
-  \texttt{AGENDADA}, \texttt{CONFIRMADA}, \texttt{EM\_ANDAMENTO},
-  \texttt{REALIZADA}, \texttt{CANCELADA}, \texttt{REMARCADA} ou
-  \texttt{NAO\_REALIZADA}.
-\item
-  \texttt{SituacaoHorario}: controla o estado de cada vaga da grade como
-  \texttt{LIVRE}, \texttt{BLOQUEADO} ou \texttt{OCUPADO}.
-\item
-  \texttt{DiaSemana}: parametriza os dias de atendimento configurados na
-  agenda do médico.
-\item
-  \texttt{TipoEvento}: filtra os gatilhos de comunicação em
-  \texttt{AGENDAMENTO}, \texttt{CONFIRMACAO}, \texttt{CANCELAMENTO},
-  \texttt{REMARCACAO} ou \texttt{LEMBRETE}.
-\item
-  \texttt{Canal}: limita os disparos de notificação a \texttt{EMAIL} ou
-  \texttt{WHATSAPP}.
-\item
-  \texttt{StatusEntrega}: sinaliza o resultado do envio via
-  \texttt{PENDENTE}, \texttt{ENVIADA} ou \texttt{FALHOU}.
-\end{itemize}
-
-\section{Considerações Finais}\label{sec:consideracoes}
-
-A modelagem desenvolvida mostra como a UML organiza e comunica a
-estrutura e o comportamento de um sistema antes da implementação,
-conectando as regras de negócio aos modelos de software.
-
-O \textbf{diagrama de atividades} (DA-01) descreve o processo de
-agendamento de ponta a ponta. Com raias para o paciente, o sistema e o
-Sistema de Notificação, ele cobre o fluxo principal e todos os fluxos
-alternativos e de exceção (sem vagas, horário ocupado, horário fora da
-janela, sessão expirada, falha de gravação e falha de notificação) e usa
-\emph{fork/join} (divisão e junção de fluxos paralelos) em dois níveis:
-no primeiro, o comprovante é gerado em paralelo ao envio das
-notificações; no segundo, dentro do envio, o e-mail e o WhatsApp saem em
-paralelo, cada um com suas próprias tentativas.
-
-O \textbf{diagrama de sequência} (DS-01) mostra, no mesmo cenário, a
-troca de mensagens ao longo do tempo. Seus destaques são a reserva
-atômica do horário, ou seja, de uma só vez, sem risco de dois pacientes
-ficarem com o mesmo horário; o \emph{rollback} (desfazer a operação) em
-caso de falha; a criação da consulta e o envio assíncrono e paralelo por
-e-mail e WhatsApp, com até 3 tentativas em cada canal.
-
-O \textbf{diagrama de classes} estrutura a visão estática do domínio com
-11 classes e 9 enumerações, relacionamentos de herança, composição e
-associação com multiplicidades, e indica a visibilidade dos atributos e
-métodos.
-
-Todos os diagramas foram revisados para garantir que estivessem
-coerentes entre si. Dessa revisão resultaram decisões que tornaram o
-modelo mais fiel às regras de negócio, como a multiplicidade entre
-\texttt{Horario} e \texttt{Consulta}, o registro de quem confirmou e
-quem cancelou, a reserva atômica do horário e a separação entre o
-comprovante e o envio da notificação.
-
-\textbf{Limitações e próximos passos:} a remarcação, a confirmação pelo
-secretário e o cancelamento estão descritos em texto
-(seções~\ref{sec:modulos-regras} e~\ref{sec:ciclo}), mas não têm
-diagrama próprio, porque o DA-01 e o DS-01 já cobrem o que foi pedido.
-Se houver evolução do trabalho, esses cenários são os candidatos
-naturais a novos diagramas (por exemplo, o cancelamento com bloqueio da
-janela de 2 horas).
 
 % =========================================================================
-% ELEMENTOS PÓS-TEXTUAIS (NBR 14724 / NBR 6023)
-% =========================================================================
+\section{Diagrama de Casos de Uso}\label{sec:uc}
 
-\newpage
-\phantomsection
-\addcontentsline{toc}{section}{REFERÊNCIAS}
+Os casos de uso foram derivados dos requisitos do Apêndice~\ref{sec:apendice}. Os que um ator aciona diretamente são o CU\nobreakdash-01 a CU\nobreakdash-06 e o CU\nobreakdash-12. Os demais (CU\nobreakdash-07 a CU\nobreakdash-11 e CU\nobreakdash-13) são casos de apoio: partes reutilizadas ou opcionais dos primeiros, ligadas a eles por \texttt{<<include>>} ou \texttt{<<extend>>}. Este capítulo apresenta os atores, os relacionamentos e o diagrama, explica as decisões de modelagem e, por fim, especifica cada caso de uso em uma tabela.
+
+\subsection{Atores}
+
+\begin{itemize}
+\tightlist
+\item \textbf{Visitante} (principal): navega, filtra e busca produtos,
+  sem autenticação.
+\item \textbf{Cliente} (principal): visitante autenticado; finaliza e
+  consulta pedidos. Herda do Visitante (generalização).
+\item \textbf{Administrador} (principal): gerencia produtos, estoque e
+  pedidos.
+\item \textbf{Gateway de Pagamento} (secundário, sistema externo):
+  autoriza e estorna pagamentos.
+\item \textbf{Serviço de Frete} (secundário, sistema externo): calcula
+  valor e prazo de entrega.
+\item \textbf{Serviço de E-mail} (secundário, sistema externo): envia as
+  mensagens de status do pedido.
+\end{itemize}
+
+\subsection{Relacionamentos}
+
+\begin{itemize}
+\setlength{\itemsep}{0.4em}
+\item \textbf{Associação:} liga cada ator aos casos de uso em que ele participa.
+\item \textbf{Generalização:} o Cliente herda do Visitante e pode fazer tudo o que o visitante faz.
+\item \textbf{\texttt{<<include>>}:} o caso de uso de origem sempre executa o caso de destino. É um passo obrigatório e reutilizável.
+\item \textbf{\texttt{<<extend>>}:} o caso de uso de origem acrescenta um fluxo opcional ao caso de destino, só quando uma condição acontece. A condição aparece em uma nota, ligada à seta por uma linha tracejada.
+\end{itemize}
+
+\subsection{Diagrama}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=0.72\textheight,keepaspectratio]{../assets/CU_CasosDeUso.pdf}
+\caption{Diagrama de Casos de Uso do Site de Loja de Eletrônicos}
+\fonte{elaborado pelos autores no draw.io (2026).}
+\end{figure}
+
+O quadro a seguir lista cada relacionamento \texttt{<<include>>} e \texttt{<<extend>>}, na direção da seta do diagrama acima.
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}\small
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{2.4cm}|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Relacionamentos \texttt{<<include>>} e \texttt{<<extend>>} do diagrama}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Tipo} & \textbf{Origem da seta} & \textbf{Destino da seta} & \textbf{Quando ocorre}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Tipo} & \textbf{Origem da seta} & \textbf{Destino da seta} & \textbf{Quando ocorre}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+\texttt{<<include>>} & CU\nobreakdash-03 Finalizar Pedido & CU\nobreakdash-09 Autenticar Usuário & Só o cliente autenticado finaliza um pedido.\\ \hline
+\texttt{<<include>>} & CU\nobreakdash-03 Finalizar Pedido & CU\nobreakdash-10 Calcular Frete & Sem o frete não há valor total do pedido.\\ \hline
+\texttt{<<include>>} & CU\nobreakdash-03 Finalizar Pedido & CU\nobreakdash-11 Processar Pagamento & O pedido só avança com o pagamento.\\ \hline
+\texttt{<<include>>} & CU\nobreakdash-04 Consultar Pedidos & CU\nobreakdash-09 Autenticar Usuário & Cada cliente só vê os próprios pedidos.\\ \hline
+\texttt{<<include>>} & CU\nobreakdash-05 Gerenciar Produtos e Estoque & CU\nobreakdash-09 Autenticar Usuário & A área administrativa é restrita.\\ \hline
+\texttt{<<include>>} & CU\nobreakdash-06 Gerenciar Pedidos & CU\nobreakdash-09 Autenticar Usuário & A área administrativa é restrita.\\ \hline
+\texttt{<<include>>} & CU\nobreakdash-06 Gerenciar Pedidos & CU\nobreakdash-13 Notificar Cliente por E-mail & O cliente é avisado a cada mudança de status.\\ \hline
+\texttt{<<include>>} & CU\nobreakdash-08 Cancelar Pedido & CU\nobreakdash-13 Notificar Cliente por E-mail & O cliente é avisado do cancelamento.\\ \hline
+\texttt{<<extend>>} & CU\nobreakdash-07 Filtrar / Buscar Produtos & CU\nobreakdash-01 Navegar no Catálogo & Quando o visitante aplica um filtro ou faz uma busca.\\ \hline
+\texttt{<<extend>>} & CU\nobreakdash-08 Cancelar Pedido & CU\nobreakdash-04 Consultar Pedidos & Quando o cliente decide cancelar, e só se o pedido ainda não foi enviado.\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\subsection{Decisões de Modelagem}
+
+\begin{itemize}
+\setlength{\itemsep}{0.4em}
+\item \textbf{Cliente herda de Visitante:} o visitante já navega e monta o carrinho sem conta; o cliente é o visitante autenticado e ganha o que exige identificação (finalizar e consultar pedidos). Assim os casos de navegação não se repetem para os dois.
+\item \textbf{Autenticar Usuário é \texttt{<<include>>}:} é um passo obrigatório e igual para quem finaliza ou consulta pedidos e para o administrador, então fica em um caso só, reutilizado.
+\item \textbf{Calcular Frete e Processar Pagamento são \texttt{<<include>>} de Finalizar Pedido:} o pedido não existe sem eles, e cada um envolve um sistema externo. Separá-los mostra quem participa de quê (Serviço de Frete e Gateway de Pagamento).
+\item \textbf{Filtrar / Buscar e Cancelar são \texttt{<<extend>>}:} o fluxo se completa sem eles; só entram quando a condição acontece.
+\item \textbf{Notificar Cliente por E-mail é um caso à parte:} dois casos disparam o aviso (CU\nobreakdash-06 e CU\nobreakdash-08), e assim o Serviço de E-mail aparece em um ponto só.
+\item \textbf{Cadastrar-se é um caso próprio do Visitante:} é a forma de virar cliente, e não uma variação do login.
+\end{itemize}
+
+\Needspace{22\baselineskip}
+\subsection{Especificação Textual dos Casos de Uso}
+
+\Needspace{200pt}
+\subsubsection{CU-01: Navegar no Catálogo}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-01}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-01: Navegar no Catálogo\\ \hline
+Atores envolvidos & \textbf{Visitante}.\\ \hline
+Pré-condições & Nenhuma.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O \textbf{Visitante} acessa o catálogo. \item O sistema lista os produtos ativos da loja. \item O \textbf{Visitante} abre um produto. \item O sistema mostra os detalhes e a disponibilidade. \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 2, se o \textbf{Visitante} aplica um filtro ou faz uma busca,\par então o sistema atualiza a lista (CU\nobreakdash-07). \item[\textbf{A2}] No passo 2, se nenhum produto atende ao filtro,\par então o sistema sugere limpar os filtros.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{200pt}
+\subsubsection{CU-02: Gerenciar Carrinho}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-02}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-02: Gerenciar Carrinho\\ \hline
+Atores envolvidos & \textbf{Visitante}; \textbf{Cliente}.\\ \hline
+Pré-condições & Produto ativo e disponível.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O \textbf{Visitante} ou o \textbf{Cliente} adiciona um produto ao carrinho, informando a quantidade. \item O sistema confere a disponibilidade. \item O sistema atualiza o carrinho e o subtotal. \item O \textbf{Visitante} ou o \textbf{Cliente} altera quantidades ou remove itens. \item O \textbf{Visitante} ou o \textbf{Cliente} segue para a finalização do pedido (CU\nobreakdash-03) ou continua comprando. \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 5, se o \textbf{Visitante} se autentica na finalização,\par então os itens do carrinho dele passam para a conta do \textbf{Cliente}. \item[\textbf{E1}] No passo 2, se a quantidade pedida é maior que o estoque,\par então o sistema limita ao disponível e avisa. \item[\textbf{E2}] No passo 3, se um item fica indisponível,\par então o sistema sinaliza no carrinho.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{200pt}
+\subsubsection{CU-03: Finalizar Pedido}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-03}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-03: Finalizar Pedido\\ \hline
+Atores envolvidos & \textbf{Cliente}. O \textbf{Serviço de Frete} (CU\nobreakdash-10) e o \textbf{Gateway de Pagamento} (CU\nobreakdash-11) participam pelos casos de uso incluídos.\\ \hline
+Pré-condições & Carrinho com ao menos um item.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O \textbf{Cliente} inicia a finalização do pedido e se autentica (include, CU\nobreakdash-09). \item O \textbf{Cliente} informa o endereço de entrega. \item O sistema obtém as opções de frete com o \textbf{Serviço de Frete} (include, CU\nobreakdash-10). \item O \textbf{Cliente} escolhe uma opção de frete. \item O \textbf{Cliente} escolhe a forma de pagamento (cartão, Pix ou boleto). \item O \textbf{Cliente} confirma o resumo do pedido. \item O sistema reserva o estoque e cria o pedido. \item O sistema envia a cobrança ao \textbf{Gateway de Pagamento} (include, CU\nobreakdash-11). \item O pagamento é aprovado e o pedido passa para pago. \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 9, se o pagamento é por Pix ou boleto,\par então o pedido aguarda a confirmação do \textbf{Gateway de Pagamento}. \item[\textbf{E1}] No passo 9, se o pagamento é recusado,\par então o \textbf{Cliente} pode tentar outra forma de pagamento. \item[\textbf{E2}] No passo 7, se algum item está sem estoque,\par então o sistema avisa e ajusta o carrinho. \item[\textbf{E3}] No passo 3, se o frete está indisponível,\par então a finalização do pedido não avança.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{320pt}
+\subsubsection{CU-04: Consultar Pedidos}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-04}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-04: Consultar Pedidos\\ \hline
+Atores envolvidos & \textbf{Cliente}.\\ \hline
+Pré-condições & Cliente com conta cadastrada e ao menos um pedido.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O \textbf{Cliente} se autentica (include, CU\nobreakdash-09). \item O \textbf{Cliente} abre ``Meus Pedidos''. \item O sistema lista os pedidos do \textbf{Cliente}, em andamento e anteriores, com data e status. \item O \textbf{Cliente} abre um pedido. \item O sistema mostra os itens, os valores e o histórico. \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 5, se o \textbf{Cliente} decide cancelar o pedido,\par então segue o cancelamento (CU\nobreakdash-08). \item[\textbf{E1}] No passo 4, se o pedido pertence a outro cliente,\par então o sistema nega o acesso.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{200pt}
+\subsubsection{CU-05: Gerenciar Produtos e Estoque}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-05}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-05: Gerenciar Produtos e Estoque\\ \hline
+Atores envolvidos & \textbf{Administrador}.\\ \hline
+Pré-condições & Conta de administrador cadastrada.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O \textbf{Administrador} se autentica (include, CU\nobreakdash-09). \item O \textbf{Administrador} cadastra ou edita um produto (nome, descrição, categoria, marca, preço, peso e dimensões). \item O sistema valida os dados e publica o produto no catálogo. \item O \textbf{Administrador} ajusta a quantidade em estoque. \item O sistema atualiza a quantidade. \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 2, se o \textbf{Administrador} inativa um produto,\par então ele deixa de aparecer no catálogo. \item[\textbf{A2}] No passo 2, se a categoria ou a marca do produto ainda não existe,\par então o \textbf{Administrador} a cria junto com o produto. \item[\textbf{E1}] No passo 3, se os dados do produto são inválidos,\par então o sistema mostra o erro junto ao campo. \item[\textbf{E2}] No passo 5, se o ajuste deixaria o estoque negativo,\par então o sistema rejeita o ajuste.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{320pt}
+\subsubsection{CU-06: Gerenciar Pedidos}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-06}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-06: Gerenciar Pedidos\\ \hline
+Atores envolvidos & \textbf{Administrador}. O \textbf{Serviço de E-mail} participa pelo caso de uso incluído (CU\nobreakdash-13).\\ \hline
+Pré-condições & Conta de administrador cadastrada e ao menos um pedido na loja.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O \textbf{Administrador} se autentica (include, CU\nobreakdash-09). \item O \textbf{Administrador} filtra os pedidos por status, data ou cliente. \item O sistema lista os pedidos. \item O \textbf{Administrador} abre um pedido e escolhe o novo status (em separação, enviado ou entregue). \item O sistema valida a mudança e atualiza o pedido. \item O sistema avisa o \textbf{Cliente} por e-mail (include, CU\nobreakdash-13). \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 4, se o novo status é ``enviado'',\par então o \textbf{Administrador} informa o código de rastreio. \item[\textbf{A2}] No passo 4, se o \textbf{Administrador} cancela o pedido,\par então informa o motivo e o sistema segue o cancelamento (CU\nobreakdash-08). \item[\textbf{E1}] No passo 5, se a mudança de status não é permitida,\par então o sistema rejeita. \item[\textbf{E2}] No passo 5, se o envio não tem código de rastreio,\par então o sistema bloqueia.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{200pt}
+\subsubsection{CU-07: Filtrar / Buscar Produtos}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-07}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-07: Filtrar / Buscar Produtos\\ \hline
+Atores envolvidos & \textbf{Visitante}.\\ \hline
+Pré-condições & Lista de produtos exibida (CU\nobreakdash-01).\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O \textbf{Visitante} escolhe categoria, marca e/ou faixa de preço, ou digita um termo de busca. \item O sistema aplica os filtros. \item O sistema atualiza a lista e o total de resultados. \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 3, se nenhum produto atende ao filtro,\par então o sistema sugere limpar os filtros. \item[\textbf{E1}] No passo 2, se a faixa de preço é inválida (mínimo maior que o máximo),\par então o sistema pede a correção.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{200pt}
+\subsubsection{CU-08: Cancelar Pedido}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-08}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-08: Cancelar Pedido\\ \hline
+Atores envolvidos & \textbf{Cliente}; \textbf{Gateway de Pagamento}. O \textbf{Serviço de E-mail} participa pelo caso de uso incluído (CU\nobreakdash-13).\\ \hline
+Pré-condições & Pedido do cliente com status aguardando pagamento, pago ou em separação.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O \textbf{Cliente} escolhe cancelar o pedido e informa o motivo. \item O \textbf{Cliente} confirma o cancelamento. \item O sistema muda o pedido para cancelado e devolve o estoque. \item O sistema avisa o \textbf{Cliente} por e-mail (include, CU\nobreakdash-13). \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 3, se o pedido já foi pago,\par então o sistema solicita o estorno ao \textbf{Gateway de Pagamento} antes de cancelar. \item[\textbf{A2}] No passo 2, se o \textbf{Cliente} desiste na confirmação,\par então nada é alterado. \item[\textbf{E1}] No passo 1, se o pedido já foi enviado,\par então o cancelamento fica indisponível. \item[\textbf{E2}] No passo 3, se o estorno falha,\par então ele fica pendente e é refeito depois, sem bloquear o cancelamento.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{200pt}
+\subsubsection{CU-09: Autenticar Usuário}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-09}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-09: Autenticar Usuário\\ \hline
+Atores envolvidos & \textbf{Cliente}; \textbf{Administrador}.\\ \hline
+Pré-condições & Conta cadastrada.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O \textbf{Cliente} ou o \textbf{Administrador} informa e-mail e senha. \item O sistema valida as credenciais. \item O sistema identifica o perfil e inicia a sessão. \item O sistema devolve o usuário ao ponto em que estava. \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 1, se o visitante ainda não tem conta,\par então ele se cadastra (CU\nobreakdash-12) e é autenticado em seguida. \item[\textbf{E1}] No passo 2, se as credenciais são inválidas,\par então o sistema mostra uma mensagem genérica, sem indicar qual dado errou.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{200pt}
+\subsubsection{CU-10: Calcular Frete}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-10}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-10: Calcular Frete\\ \hline
+Atores envolvidos & \textbf{Serviço de Frete}.\\ \hline
+Pré-condições & Carrinho com itens e CEP de entrega informado.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O sistema envia o CEP e o peso e as dimensões dos itens ao \textbf{Serviço de Frete}. \item O \textbf{Serviço de Frete} devolve as opções de entrega. \item O sistema exibe o valor e o prazo de cada opção. \item O \textbf{Cliente} escolhe uma opção. \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{E1}] No passo 1, se o CEP é inválido,\par então o sistema pede a correção. \item[\textbf{E2}] No passo 1, se o \textbf{Serviço de Frete} está indisponível,\par então o sistema avisa e a finalização do pedido não avança.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{200pt}
+\subsubsection{CU-11: Processar Pagamento}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-11}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-11: Processar Pagamento\\ \hline
+Atores envolvidos & \textbf{Gateway de Pagamento}.\\ \hline
+Pré-condições & Pedido criado, com a forma de pagamento escolhida.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O sistema envia a cobrança ao \textbf{Gateway de Pagamento}, sem guardar dados de cartão. \item O \textbf{Gateway de Pagamento} aprova o pagamento. \item O sistema registra o resultado. \item O sistema passa o pedido para pago e dá baixa no estoque reservado. \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 2, se o pagamento é por Pix ou boleto,\par então o pedido aguarda o aviso de confirmação do \textbf{Gateway de Pagamento}. \item[\textbf{E1}] No passo 2, se o pagamento é recusado,\par então o \textbf{Cliente} pode tentar outra forma. \item[\textbf{E2}] No passo 1, se o \textbf{Gateway de Pagamento} está indisponível,\par então o pedido fica aguardando verificação, sem cobrança duplicada. \item[\textbf{E3}] No passo 2, se o prazo de pagamento expira,\par então o sistema cancela o pedido e devolve o estoque reservado.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{200pt}
+\subsubsection{CU-12: Cadastrar-se}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-12}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-12: Cadastrar-se\\ \hline
+Atores envolvidos & \textbf{Visitante}.\\ \hline
+Pré-condições & Nenhuma.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O \textbf{Visitante} informa nome, CPF, e-mail, telefone e senha. \item O sistema valida os dados. \item O sistema cria a conta de cliente e autentica o usuário. \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{E1}] No passo 2, se o CPF ou o e-mail já estão cadastrados,\par então o sistema sugere entrar na conta existente. \item[\textbf{E2}] No passo 2, se os dados são inválidos,\par então o sistema mostra o erro junto aos campos.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{200pt}
+\subsubsection{CU-13: Notificar Cliente por E-mail}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Especificação do CU-13}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Campo} & \textbf{Descrição}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Nome & CU\nobreakdash-13: Notificar Cliente por E-mail\\ \hline
+Atores envolvidos & \textbf{Serviço de E-mail}.\\ \hline
+Pré-condições & Pedido com mudança de status registrada.\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O sistema monta a mensagem com o número do pedido e o novo status. \item O sistema envia a mensagem ao \textbf{Serviço de E-mail}. \item O \textbf{Serviço de E-mail} entrega a mensagem ao \textbf{Cliente}. \item O sistema registra o envio. \end{enumerate}\\ \hline
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{E1}] No passo 2, se o envio falha,\par então o sistema tenta de novo e, se continuar falhando, registra a falha sem desfazer a mudança de status.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+% =========================================================================
+\section{Diagramas de Componentes}\label{sec:cmp}
+
+A arquitetura é apresentada em dois níveis: um diagrama \textbf{geral},
+com todos os componentes do sistema, e dois diagramas \textbf{micro},
+que mostram os componentes internos do \emph{Frontend} e do
+\emph{Backend}.
+
+\subsection{Visão Geral}
+
+O sistema é uma aplicação web em camadas, organizada nos pacotes
+\emph{Frontend}, \emph{Backend}, \emph{Integrações}, \emph{Dados} e
+\emph{Serviços Externos}. Os serviços externos são acessados apenas por
+\textbf{adaptadores}, o que permite trocar o gateway de pagamento, o
+serviço de frete ou o de e-mail sem alterar o núcleo.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth,keepaspectratio]{../assets/CMP_Geral.pdf}
+\caption{Diagrama de Componentes: visão geral}
+\fonte{elaborado pelos autores no draw.io (2026).}
+\end{figure}
+
+\subsection{Dicionário de Componentes}
+
+{\small
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}p{3.0cm}}
+\rowcolor{white}\caption{Dicionário de componentes (visão geral)}\label{tab:dicionario}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Componente} & \textbf{Responsabilidade} & \textbf{Fornece} & \textbf{Requer}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Componente} & \textbf{Responsabilidade} & \textbf{Fornece} & \textbf{Requer}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Interface da Loja & Telas de catálogo, carrinho, finalização do pedido e pedidos. & Nenhuma & \texttt{IApi}\\ \hline
+Painel Administrativo & Telas de produtos, estoque e pedidos. & Nenhuma & \texttt{IApi}\\ \hline
+API & Entrada HTTPS; valida sessão e perfil; encaminha às funções dos módulos. No detalhe do Backend, corresponde à camada de API (controladores e segurança). & \texttt{IApi} & \texttt{IUsuarios}, \texttt{ICatalogo}, \texttt{ICarrinho}, \texttt{IPedidos}, \texttt{IEstoque}\\ \hline
+Usuários & Cadastro, login e perfis. & \texttt{IUsuarios} & \texttt{IDados} (via Repositórios)\\ \hline
+Catálogo & Produtos, categorias, marcas, filtros e busca. & \texttt{ICatalogo} & \texttt{IDados} (via Repositórios), \texttt{IEstoque}\\ \hline
+Carrinho & Itens e subtotal. & \texttt{ICarrinho} & \texttt{ICatalogo}\\ \hline
+Pedidos & Finalização do pedido, status e cancelamento. & \texttt{IPedidos} & \texttt{ICarrinho}, \texttt{IEstoque}, \texttt{IFrete}, \texttt{IPagamento}, \texttt{INotificacao}, \texttt{IDados} (via Repositórios)\\ \hline
+Estoque & Disponibilidade, reserva, baixa e ajustes. & \texttt{IEstoque} & \texttt{IDados} (via Repositórios)\\ \hline
+Notificações & Monta e envia e-mails de status. & \texttt{INotificacao} & \texttt{IEmail}\\ \hline
+Adaptador de Pagamento & Comunica-se com o gateway de pagamento. & \texttt{IPagamento} & \texttt{IGateway}\\ \hline
+Adaptador de Frete & Comunica-se com o serviço de frete. & \texttt{IFrete} & \texttt{IServicoFrete}\\ \hline
+Adaptador de E-mail & Comunica-se com o serviço de e-mail. & \texttt{IEmail} & \texttt{IServicoEmail}\\ \hline
+Banco de Dados & Persistência dos dados. & \texttt{IDados} & Nenhuma\\ \hline
+Gateway de Pagamento, Serviço de Frete, Serviço de E-mail (externos) & Serviços de terceiros. & \texttt{IGateway}, \texttt{IServicoFrete}, \texttt{IServicoEmail} & Nenhuma\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+}
+
+\paragraph{Interfaces do sistema.} O quadro abaixo explica o que cada interface representa. O nome começa com a letra I (de \emph{interface}).
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Interfaces do sistema}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Interface} & \textbf{O que oferece}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Interface} & \textbf{O que oferece}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+\texttt{IApi} & Recebe as solicitações das telas. Oferecida pela API.\\ \hline
+\texttt{IUsuarios} & Cadastro, login e perfis de usuário.\\ \hline
+\texttt{ICatalogo} & Consulta de produtos, categorias e marcas, com filtros e busca.\\ \hline
+\texttt{ICarrinho} & Gerenciamento dos itens e do subtotal do carrinho.\\ \hline
+\texttt{IPedidos} & Criação de pedidos, acompanhamento do status e cancelamento.\\ \hline
+\texttt{IEstoque} & Consulta de disponibilidade, reserva, baixa e ajuste das quantidades.\\ \hline
+\texttt{INotificacao} & Envio de avisos ao cliente sobre o pedido.\\ \hline
+\texttt{IPagamento} & Cobrança e estorno de pagamentos. Oferecida pelo adaptador de pagamento.\\ \hline
+\texttt{IFrete} & Cálculo de valor e prazo de entrega. Oferecida pelo adaptador de frete.\\ \hline
+\texttt{IEmail} & Envio de e-mails. Oferecida pelo adaptador de e-mail.\\ \hline
+\texttt{IDados} & Gravação e consulta de dados no banco de dados.\\ \hline
+\texttt{IGateway}, \texttt{IServicoFrete}, \texttt{IServicoEmail} & Serviços oferecidos pelos sistemas externos: cobrança e estorno, cotação de frete e envio de e-mail.\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\paragraph{Leitura do diagrama.} As setas tracejadas entre os pacotes indicam dependência: o Frontend depende do Backend, o Backend depende das Integrações e as Integrações dependem dos Serviços Externos. Os módulos usam o banco de dados por meio dos Repositórios (descritos na seção \ref{sec:backend-detalhe}); por isso a dependência de \texttt{IDados} aparece no nível do pacote Backend, e não em cada módulo.
+
+\paragraph{Justificativa das dependências.} A \emph{API} é o único ponto
+de entrada, o que centraliza segurança e controle de perfil. \emph{Pedidos}
+depende de \emph{Carrinho}, \emph{Estoque}, \emph{Frete}, \emph{Pagamento}
+e \emph{Notificações} porque a finalização do pedido orquestra esses serviços. O
+\emph{Catálogo} consulta \emph{Estoque} para exibir a disponibilidade, e o
+\emph{Carrinho} obtém preço e disponibilidade pelo \emph{Catálogo}.
+Nenhum módulo de negócio acessa serviço externo diretamente, apenas
+pelos adaptadores. Há duas \textbf{portas}: a porta HTTPS da \emph{API}
+(entrada pública) e a porta de \emph{webhook} do \emph{Adaptador de
+Pagamento} (confirmação de Pix e boleto).
+
+\subsection{Detalhe Interno: Frontend}
+
+O \emph{Frontend} reúne as duas aplicações de interface. Cada uma é
+dividida em telas (componentes internos) que compartilham o componente
+\emph{Cliente da API}, responsável pela sessão e pelas requisições
+HTTPS. Esse é o único ponto do Frontend que requer a interface
+\texttt{IApi}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{../assets/CMP_Frontend.pdf}
+\caption{Diagrama de Componentes: detalhe do Frontend}
+\fonte{elaborado pelos autores no draw.io (2026).}
+\end{figure}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.6cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Componentes internos do Frontend}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Componente interno} & \textbf{Responsabilidade}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Componente interno} & \textbf{Responsabilidade}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Catálogo e Busca & Listagem, filtros, busca e detalhes dos produtos (CU\nobreakdash-01).\\ \hline
+Carrinho e Finalização do Pedido & Carrinho, escolha de frete e pagamento e confirmação do pedido (CU\nobreakdash-02 e CU\nobreakdash-03).\\ \hline
+Meus Pedidos & Consulta e cancelamento de pedidos (CU\nobreakdash-04 e CU\nobreakdash-08).\\ \hline
+Login e Cadastro & Cadastro de cliente e autenticação (CU\nobreakdash-09 e CU\nobreakdash-12).\\ \hline
+Gestão de Produtos & Cadastro, edição e inativação de produtos (CU\nobreakdash-05).\\ \hline
+Gestão de Estoque & Ajuste de quantidades em estoque (CU\nobreakdash-05).\\ \hline
+Gestão de Pedidos & Consulta de pedidos e atualização de status (CU\nobreakdash-06, que dispara o CU\nobreakdash-13).\\ \hline
+Cliente da API & Mantém a sessão e envia as requisições HTTPS; requer \texttt{IApi}.\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\subsection{Detalhe Interno: Backend}\label{sec:backend-detalhe}
+
+O \emph{Backend} é organizado em três pacotes (camadas): a \textbf{camada
+de API} (controladores e segurança), os \textbf{módulos de negócio} e o
+\textbf{acesso a dados}. As setas tracejadas indicam que a camada de API usa
+as interfaces dos módulos e que os módulos usam o acesso a dados. Cada
+módulo oferece a sua própria interface (círculo). A camada de API corresponde ao componente API do diagrama geral e fornece
+\texttt{IApi} pelas portas no topo, uma para cada controlador; \emph{Pedidos} requer \texttt{IPagamento}
+e \texttt{IFrete}, \emph{Notificações} requer \texttt{IEmail} e os
+\emph{Repositórios} requerem \texttt{IDados}, todos por portas na base. As
+dependências entre os módulos (por exemplo, Pedidos usando Carrinho) já
+aparecem no diagrama geral e não são repetidas aqui.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=0.5\textheight,keepaspectratio]{../assets/CMP_Backend.pdf}
+\caption{Diagrama de Componentes: detalhe do Backend}
+\fonte{elaborado pelos autores no draw.io (2026).}
+\end{figure}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.6cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Componentes internos do Backend}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Componente interno} & \textbf{Responsabilidade}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Componente interno} & \textbf{Responsabilidade}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Controlador da Loja & Recebe as requisições do cliente e do visitante; fornece \texttt{IApi}.\\ \hline
+Controlador Administrativo & Recebe as requisições do administrador; fornece \texttt{IApi}.\\ \hline
+Segurança e Perfis (RBAC) & Valida a sessão e o perfil antes de cada operação; é usado pelos dois controladores.\\ \hline
+Usuários, Catálogo, Estoque, Carrinho, Pedidos, Notificações & Módulos de negócio descritos no Quadro~\ref{tab:dicionario}.\\ \hline
+Repositórios & Gravam e consultam os dados dos módulos; requerem \texttt{IDados}.\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+% =========================================================================
+\section{Ferramenta de Modelagem e Lista de Símbolos}\label{sec:simbolos}
+
+Os diagramas foram elaborados no \textbf{draw.io} (diagrams.net).
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.2cm}|>{\raggedright\arraybackslash}p{5.6cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Símbolos do diagrama de casos de uso (ferramenta: draw.io)}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Elemento} & \textbf{Símbolo no draw.io} & \textbf{Significado}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Elemento} & \textbf{Símbolo no draw.io} & \textbf{Significado}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Ator principal & Boneco com o nome abaixo & Usuário que usa o sistema diretamente.\\ \hline
+Ator secundário & Boneco com o nome e o estereótipo \texttt{<<sistema>>} & Sistema externo com o qual o sistema se comunica (gateway, frete, e-mail).\\ \hline
+Caso de uso & Elipse com o nome dentro & Funcionalidade oferecida ao ator.\\ \hline
+Fronteira do sistema & Retângulo com o nome do sistema no topo & Delimita o escopo modelado.\\ \hline
+Associação & Linha contínua & Comunicação entre ator e caso de uso.\\ \hline
+Generalização & Linha com ponta de triângulo vazada & Herança entre atores (Cliente $\to$ Visitante).\\ \hline
+\texttt{<<include>>} & Seta tracejada com estereótipo & Passo obrigatório incluído em outro caso de uso.\\ \hline
+\texttt{<<extend>>} & Seta tracejada com estereótipo, ligada por linha tracejada a uma nota com a condição & Fluxo opcional que estende outro caso de uso, só quando a condição é verdadeira.\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.2cm}|>{\raggedright\arraybackslash}p{5.6cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Símbolos do diagrama de componentes (ferramenta: draw.io)}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Elemento} & \textbf{Símbolo no draw.io} & \textbf{Significado}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Elemento} & \textbf{Símbolo no draw.io} & \textbf{Significado}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Componente & Retângulo com o ícone de componente no canto superior direito & Módulo lógico do sistema.\\ \hline
+Pacote & Retângulo em forma de pasta, com o nome na aba & Agrupa componentes (Frontend, Backend\ldots).\\ \hline
+Interface fornecida & Círculo (``pirulito'') ligado ao componente & Serviço que o componente oferece.\\ \hline
+Interface requerida & Meio-círculo (``soquete'') voltado ao círculo & Serviço de que o componente precisa.\\ \hline
+Dependência & Seta tracejada aberta & Um elemento depende de outro.\\ \hline
+Porta & Pequeno quadrado na borda do componente & Ponto de interação do componente com o ambiente externo.\\ \hline
+Banco de dados & Cilindro & Local onde os dados são guardados.\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+
+% =========================================================================
 \section*{REFERÊNCIAS}
+\addcontentsline{toc}{section}{REFERÊNCIAS}
 
 \begin{singlespace}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{1.5ex}
+\noindent OBJECT MANAGEMENT GROUP (OMG). \textbf{Unified Modeling
+Language (UML) Specification}, versão 2.5.1. Disponível em:
+\url{https://www.omg.org/spec/UML/2.5.1}.
 
-FOWLER, Martin. \textbf{UML essencial}: um breve guia para a linguagem-padrão de modelagem de objetos. 3.~ed. Porto Alegre: Bookman, 2005.
+\vspace{0.3cm}
+\noindent JGRAPH LTD. \textbf{draw.io (diagrams.net)}. Disponível em:
+\url{https://app.diagrams.net}.
 
-OBJECT MANAGEMENT GROUP (OMG). \textbf{OMG Unified Modeling Language (OMG UML)}: Superstructure, Version 2.5.1. Needham: OMG, 2017. Disponível em: \url{https://www.omg.org/spec/UML/2.5.1/}. Acesso em: 8 out. 2026.
-
-PLANTUML. \textbf{PlantUML Language Reference Guide}. 2024. Disponível em: \url{https://plantuml.com/guide}. Acesso em: 8 out. 2026.
-
-PRESSMAN, Roger S.; MAXIM, Bruce R. \textbf{Engenharia de software}: uma abordagem profissional. 8.~ed. Porto Alegre: AMGH, 2016.
-
-SOMMERVILLE, Ian. \textbf{Engenharia de software}. 10.~ed. São Paulo: Pearson Education do Brasil, 2019.
-
+\vspace{0.3cm}
+\noindent ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. \textbf{NBR 14724:
+Informação e documentação: trabalhos acadêmicos: apresentação}.
+Rio de Janeiro: ABNT, 2011.
 \end{singlespace}
 
+% =========================================================================
 \newpage
 \appendix
-
-% Rótulo "APÊNDICE A --" apenas para as seções pós-textuais
 \titleformat{\section}
-  {\normalfont\normalsize\bfseries\MakeUppercase}{APÊNDICE~\thesection~---}{1em}{}
+  {\normalfont\normalsize\bfseries\MakeUppercase}{APÊNDICE \Alph{section}:}{0.5em}{}
+\section{Requisitos e Regras de Negócio}\label{sec:apendice}
 
-\section{Especificação de Requisitos e Regras de Negócio}\label{sec:apendice}
+\Needspace{10\baselineskip}
+\subsection*{Requisitos Funcionais}
 
-As decisões de modelagem apresentadas neste trabalho foram fundamentadas
-em um levantamento prévio de requisitos funcionais e regras de negócio,
-consolidados abaixo para fins de consulta e rastreabilidade.
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Requisitos funcionais}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{ID} & \textbf{Requisito}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{ID} & \textbf{Requisito}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+RF-01 & Listar produtos do catálogo com filtros por categoria, marca e faixa de preço, além de busca por texto.\\ \hline
+RF-02 & Exibir detalhes do produto (descrição, preço, disponibilidade).\\ \hline
+RF-03 & Cadastrar e autenticar cliente (e-mail e senha).\\ \hline
+RF-04 & Adicionar, alterar e remover itens do carrinho.\\ \hline
+RF-05 & Calcular frete por CEP via serviço externo.\\ \hline
+RF-06 & Finalizar pedido (endereço, frete, forma de pagamento, confirmação).\\ \hline
+RF-07 & Processar pagamento pelo gateway de pagamento (cartão, Pix ou boleto).\\ \hline
+RF-08 & Consultar os pedidos e o status deles e cancelar antes do envio (com estorno se já pago).\\ \hline
+RF-09 & Avisar o cliente por e-mail nas mudanças de status do pedido, inclusive no cancelamento.\\ \hline
+RF-10 & Cadastrar, editar e inativar produtos (administrador).\\ \hline
+RF-11 & Gerenciar estoque: ajustar quantidades (administrador).\\ \hline
+RF-12 & Consultar pedidos e atualizar o status (administrador).\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
 
-\subsection{Requisitos Funcionais (RF)}\label{sec:rf}
+\Needspace{10\baselineskip}
+\subsection*{Requisitos Não Funcionais}
 
-\subsubsection{Módulo de Cadastro e Autenticação}
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Requisitos não funcionais}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{ID} & \textbf{Requisito}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{ID} & \textbf{Requisito}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+RNF-01 & Comunicação por HTTPS; senhas com hash.\\ \hline
+RNF-02 & Acesso por perfil: área administrativa restrita ao Administrador.\\ \hline
+RNF-03 & Dados de cartão não são armazenados pela loja (tratados pelo gateway de pagamento).\\ \hline
+RNF-04 & Interface responsiva (celular e desktop).\\ \hline
+RNF-05 & Falha em serviço externo não derruba o restante do sistema.\\ \hline
+RNF-06 & Arquitetura modular, com interfaces bem definidas, para trocar o gateway de pagamento ou o serviço de frete sem afetar o núcleo.\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
 
-\begin{table}[H]
-\centering
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}c>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.7cm}@{}}
-\toprule
-ID & Requisito & Descrição & Regras relacionadas \\
-\midrule
-RF-01 & Cadastrar paciente & O sistema deve permitir o cadastro de paciente com nome, CPF, data de nascimento, e-mail, telefone e senha. & RN-01, RN-02, RN-03 \\
-RF-02 & Autenticar usuário & O sistema deve autenticar paciente, médico, secretário e administrador por e-mail + senha, diferenciando perfis. & RN-04, RN-06 \\
-RF-03 & Recuperar senha & O sistema deve permitir redefinição de senha por link enviado ao e-mail cadastrado. & RN-05 \\
-RF-04 & Gerenciar cadastro de médico e secretário & O \textbf{Administrador} deve poder cadastrar médico (nome, CRM, UF, especialidade(s) e contato) e secretário (nome, matrícula e contato). & RN-02, RN-07, RN-08 \\
-RF-05 & Gerenciar especialidades & O \textbf{Administrador} deve poder manter o catálogo de especialidades (nome, descrição, status ATIVA/INATIVA). & RN-09 \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
+\Needspace{10\baselineskip}
+\subsection*{Regras de Negócio}
 
-\subsubsection{Módulo de Consulta de Médicos e Especialidades}
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Regras de negócio}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{ID} & \textbf{Regra}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{ID} & \textbf{Regra}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+RN-01 & Só produtos ativos aparecem no catálogo; sem estoque, o produto fica indisponível.\\ \hline
+RN-02 & A quantidade no carrinho não pode exceder o estoque disponível.\\ \hline
+RN-03 & Só cliente autenticado finaliza pedido.\\ \hline
+RN-04 & O estoque é reservado ao criar o pedido e baixado quando o pagamento é aprovado.\\ \hline
+RN-05 & O pedido pode ser cancelado até o envio; se já estava pago, o valor é estornado.\\ \hline
+RN-06 & Falha ao enviar e-mail não desfaz nenhuma operação.\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
 
-\begin{table}[H]
-\centering
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}c>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.7cm}@{}}
-\toprule
-ID & Requisito & Descrição & Regras relacionadas \\
-\midrule
-RF-06 & Listar especialidades & O sistema deve exibir todas as especialidades ativas para busca. & RN-09 \\
-RF-07 & Listar médicos por especialidade & Dada uma especialidade, o sistema deve listar os médicos ativos que a atendem. & RN-07, RN-10 \\
-RF-08 & Exibir horários disponíveis & Para cada médico, o sistema deve exibir apenas os horários \textbf{livres} dentro da sua disponibilidade, considerando o horário atual. & RN-11, RN-12, RN-13 \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
+\noindent\textbf{Status do pedido:} aguardando pagamento $\rightarrow$ pago $\rightarrow$ em separação $\rightarrow$ enviado $\rightarrow$ entregue. O pedido pode ser cancelado a partir de qualquer status anterior a enviado.
 
-\subsubsection{Módulo de Agendamento}
+\section{Glossário de Termos Técnicos}\label{sec:termos}
 
-\begin{table}[H]
-\centering
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}c>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.7cm}@{}}
-\toprule
-ID & Requisito & Descrição & Regras relacionadas \\
-\midrule
-RF-09 & Agendar consulta & O paciente deve poder agendar consulta selecionando especialidade $\rightarrow$ médico $\rightarrow$ data $\rightarrow$ horário livre, com confirmação final antes do envio. & RN-10, RN-11, RN-13, RN-16, RN-18 \\
-RF-10 & Confirmar agendamento & Após a reserva bem-sucedida, o sistema deve exibir resumo da consulta e disparar notificação de agendamento. & RN-25, RN-27 \\
-RF-11 & Visualizar minhas consultas & O paciente deve poder listar suas consultas futuras e passadas com respectivo status. & RN-19 \\
-RF-12 & Cancelar consulta & O paciente (ou secretário) deve poder cancelar uma consulta futura, informando o motivo (obrigatório), liberando o horário. & RN-20, RN-21 \\
-RF-13 & Remarcar consulta & O paciente titular (ou o secretário) deve poder remarcar uma consulta futura \textbf{com o mesmo médico}, informando o motivo (obrigatório) e validando o novo horário como uma nova reserva. & RN-13, RN-17, RN-20, RN-21 \\
-RF-22 & Agir em nome do paciente & O secretário deve poder agendar, remarcar e cancelar consultas em nome de um paciente cadastrado (atendimento presencial/telefônico), com as mesmas validações de RF-09, RF-12 e RF-13. & RN-10, RN-11, RN-13, RN-16, RN-18, RN-20, RN-23 \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
+O quadro a seguir explica, em linguagem simples, os termos técnicos usados ao longo do documento.
 
-\subsubsection{Módulo de Agenda do Médico}
-
-\begin{table}[H]
-\centering
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}c>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.7cm}@{}}
-\toprule
-ID & Requisito & Descrição & Regras relacionadas \\
-\midrule
-RF-14 & Definir disponibilidade & O médico deve poder definir dias da semana e faixas horárias de atendimento, com antecedência mínima configurável. & RN-11, RN-12, RN-13, RN-15 \\
-RF-15 & Bloquear horário & O médico deve poder bloquear um horário específico já disponível (sem consulta), tornando-o indisponível. O secretário pode registrar bloqueios operacionais justificados. & RN-14, RN-15 \\
-RF-16 & Visualizar agenda & O médico e o secretário devem poder visualizar a agenda em visão diária/semanal, com status de cada consulta. & RN-19 \\
-RF-17 & Atender e encerrar consulta & O médico deve poder iniciar a consulta, marcá-la como \textbf{realizada} ao final do atendimento ou registrar a \textbf{ausência} do paciente (\texttt{NAO\_REALIZADA}). & RN-22, RN-24 \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\subsubsection{Módulo de Confirmação (Secretário)}
-
-\begin{table}[H]
-\centering
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}c>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.7cm}@{}}
-\toprule
-ID & Requisito & Descrição & Regras relacionadas \\
-\midrule
-RF-18 & Confirmar consulta & O secretário (ou o médico titular) deve poder confirmar uma consulta com status \textit{agendada}, alterando-a para \textit{confirmada} e registrando quem confirmou e quando. & RN-24, RN-25, RN-26 \\
-RF-19 & Visualizar pendências & O sistema deve listar as consultas pendentes de confirmação, filtráveis por médico, data e status. & RN-26 \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\subsubsection{Módulo de Notificação}
-
-\begin{table}[H]
-\centering
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}c>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.7cm}@{}}
-\toprule
-ID & Requisito & Descrição & Regras relacionadas \\
-\midrule
-RF-20 & Notificar eventos & O sistema deve disparar notificações nos eventos: agendada, confirmada, cancelada, remarcada, lembrete pré-consulta. & RN-25, RN-27, RN-28 \\
-RF-21 & Registrar notificações & Cada notificação deve ser persistida com destinatário, evento, canal, data/hora e status de entrega. & RN-27 \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\subsection{Regras de Negócio (RN)}\label{sec:rn}
-
-\subsubsection{Identificação e acesso}
-
-\begin{table}[H]
-\centering
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}X@{}}
-\toprule
-ID & Regra \\
-\midrule
-\textbf{RN-01} & O CPF deve ter 11 dígitos, ser válido (módulo 11) e \textbf{único} no cadastro de pacientes. \\
-\textbf{RN-02} & O e-mail deve ser válido e \textbf{único} por usuário no sistema. \\
-\textbf{RN-03} & A senha deve ter no mínimo 8 caracteres, contendo ao menos 1 letra e 1 número. \\
-\textbf{RN-04} & O sistema autentica por e-mail + senha e deriva o perfil (PACIENTE, MEDICO, SECRETARIO, ADMINISTRADOR) do cadastro. \\
-\textbf{RN-05} & Links de redefinição de senha expiram em 30 minutos e são de uso único. \\
-\textbf{RN-06} & Após 5 falhas consecutivas de login, a conta é bloqueada por 15 minutos. \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\subsubsection{Cadastros e catálogo}
-
-\begin{table}[H]
-\centering
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}X@{}}
-\toprule
-ID & Regra \\
-\midrule
-\textbf{RN-07} & Todo médico deve ter \textbf{ao menos uma} especialidade ativa para aparecer nas buscas. \\
-\textbf{RN-08} & O par (CRM, UF) do médico é \textbf{único} no sistema. \\
-\textbf{RN-09} & Só são exibidas especialidades com \texttt{status = ATIVA}. \\
-\textbf{RN-10} & Paciente, médico, secretário e administrador só são exibidos com \texttt{status = ATIVO}; cadastro inativo não pode gerar novas consultas. \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\subsubsection{Disponibilidade e horários}
-
-\begin{table}[H]
-\centering
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}X@{}}
-\toprule
-ID & Regra \\
-\midrule
-\textbf{RN-11} & Um horário só é considerado \textbf{disponível} se: pertencer à disponibilidade do médico, estar dentro do expediente configurado, não estiver bloqueado e \textbf{não houver consulta ativa} (AGENDADA, CONFIRMADA ou EM\_ANDAMENTO) naquele slot. \\
-\textbf{RN-12} & Cada consulta ocupa \textbf{um slot} de \textbf{30 minutos por padrão} (configurável pelo médico em múltiplos de 30), sem sobreposição entre consultas do mesmo médico. \\
-\textbf{RN-13} & Só é permitido agendar a partir de \texttt{agora + antecedênciaMinima} da agenda do médico (\textbf{padrão 30 min}) e com no máximo \textbf{90 dias} de antecedência. \\
-\textbf{RN-14} & Bloqueios operacionais de horário feitos pelo secretário exigem justificativa e ficam registrados em auditoria. \\
-\textbf{RN-15} & Alterações de disponibilidade ou bloqueios que atinjam consultas já existentes \textbf{não} as cancelam automaticamente; o sistema deve sinalizar conflito e exigir tratamento manual. \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\subsubsection{Ciclo de vida da consulta}
-
-\begin{table}[H]
-\centering
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}X@{}}
-\toprule
-ID & Regra \\
-\midrule
-\textbf{RN-16} & Toda consulta nasce com status \texttt{AGENDADA} e está sempre associada a \textbf{1 paciente, 1 médico, 1 especialidade e 1 slot de horário}. \\
-\textbf{RN-17} & A \textbf{remarcação} é modelada como: cancelamento da consulta original (status \texttt{REMARCADA}, com vínculo para a nova) + criação de nova consulta. A remarcação mantém o \textbf{mesmo médico}; trocar de médico exige cancelar e agendar novamente. \\
-\textbf{RN-18} & Apenas uma consulta pode ocupar o mesmo (médico, data, horário) com status ativo; consultas canceladas ou remarcadas permanecem como histórico, vinculadas ao mesmo \texttt{Horario}. \\
-\textbf{RN-19} & Consultas \texttt{AGENDADA} ou \texttt{CONFIRMADA} cujo slot terminou sem terem sido iniciadas transicionam automaticamente para \texttt{NAO\_REALIZADA} (executado pelo Sistema/agendador). \\
-\textbf{RN-20} & Cancelamento/remarcação só é permitido \textbf{até 2 horas antes} do horário da consulta. \\
-\textbf{RN-21} & Cancelamentos e remarcações exigem \textbf{confirmação explícita} do usuário, registram autor (\texttt{canceladaPor}) e data (\texttt{canceladaEm}), e exigem \textbf{motivo obrigatório} (\texttt{motivoCancelamento}). \\
-\textbf{RN-22} & Somente o médico titular pode iniciar, encerrar (\texttt{REALIZADA}) ou registrar ausência (\texttt{NAO\_REALIZADA}) de uma consulta. \texttt{REALIZADA} só é alcançado a partir de \texttt{EM\_ANDAMENTO}. \\
-\textbf{RN-23} & Consulta criada, remarcada ou cancelada pelo secretário em nome do paciente registra o secretário como autor na auditoria e notifica o paciente conforme RN-25. \\
-\textbf{RN-24} & A confirmação (\texttt{CONFIRMADA}) é \textbf{opcional}: o médico pode iniciar uma consulta \texttt{AGENDADA} ou \texttt{CONFIRMADA}. \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\subsubsection{Confirmação e notificação}
-
-\begin{table}[H]
-\centering
-{\footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}X@{}}
-\toprule
-ID & Regra \\
-\midrule
-\textbf{RN-25} & Cada evento de negócio (\texttt{AGENDAMENTO}, \texttt{CONFIRMACAO}, \texttt{CANCELAMENTO}, \texttt{REMARCACAO}) dispara uma notificação por destinatário \textbf{e por canal} (e-mail e WhatsApp). Mudanças para \texttt{EM\_ANDAMENTO}, \texttt{REALIZADA} e \texttt{NAO\_REALIZADA} não geram notificação. \\
-\textbf{RN-26} & Somente \textbf{secretário} ou o \textbf{médico titular} pode confirmar consulta; a confirmação registra o autor (\texttt{confirmadaPor}) e o timestamp (\texttt{confirmadaEm}). \\
-\textbf{RN-27} & Falha no envio de notificação \textbf{não} desfaz a transação principal; a notificação entra em fila de nova tentativa (até 3 tentativas com backoff). Cada canal tem o seu registro de \texttt{Notificacao} e as suas tentativas. \\
-\textbf{RN-28} & O lembrete é disparado \textbf{24 h antes} do horário da consulta, apenas para status \texttt{CONFIRMADA} ou \texttt{AGENDADA}. \\
-\bottomrule
-\end{tabularx}
-}
-\fonte{Elaborado pelos autores (2026).}
-\end{table}
-
-\newpage
-\section{Código-fonte PlantUML dos Diagramas}\label{sec:apendice-codigo}
-
-Os diagramas apresentados neste trabalho foram elaborados em PlantUML. Os
-códigos-fonte que geraram os modelos são reproduzidos a seguir para fins
-de verificação e reprodutibilidade.
-
-\subsection{DA-01 --- Agendamento de Consulta}
-
-\lstinputlisting{../assets/DA01_Agendamento.puml}
-\fonte{Elaborado pelos autores (2026).}
-
-\subsection{DS-01 --- Agendamento de Consulta (Fluxo Completo)}
-
-\lstinputlisting{../assets/DS01_Agendamento.puml}
-\fonte{Elaborado pelos autores (2026).}
-
-\subsection{DC --- Diagrama de Classes (Nível Macro)}
-
-\lstinputlisting{../assets/DC_Classes.puml}
-\fonte{Elaborado pelos autores (2026).}
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Termos técnicos utilizados}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Termo} & \textbf{O que significa}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Termo} & \textbf{O que significa}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Gateway de pagamento & Serviço externo que recebe os dados da compra, cobra o cliente (cartão, Pix ou boleto) e informa se o pagamento foi aprovado.\\ \hline
+Webhook & Aviso automático que o gateway de pagamento envia ao sistema quando um pagamento é confirmado. É usado no Pix e no boleto, que não são aprovados na hora.\\ \hline
+RBAC (controle de acesso por perfil) & Regra que define o que cada tipo de usuário pode fazer. Por exemplo, só o administrador acessa a área de produtos e estoque.\\ \hline
+HTTPS & Forma segura de comunicação pela internet, que protege os dados trocados, como senhas e endereços.\\ \hline
+Frontend & Parte do sistema que o usuário vê e usa, ou seja, as telas.\\ \hline
+Backend & Parte interna do sistema, que executa as regras do negócio e guarda os dados.\\ \hline
+API & Ponto de entrada do backend. Recebe as solicitações das telas e as encaminha ao módulo responsável.\\ \hline
+Adaptador & Componente que faz a ``tradução'' entre o sistema e um serviço externo. Assim, o serviço pode ser trocado sem alterar o resto do sistema.\\ \hline
+Controlador & Componente da API que recebe as solicitações de um tipo de usuário (cliente ou administrador) e as repassa aos módulos.\\ \hline
+Repositório & Componente que grava e consulta os dados no banco de dados.\\ \hline
+Cliente da API & Componente do frontend que envia as solicitações das telas à API e mantém a sessão do usuário (o login ativo).\\ \hline
+Interface & Conjunto de serviços de um componente. A \emph{fornecida} (círculo) é o que ele oferece; a \emph{requerida} (meio-círculo) é o que ele precisa de outro componente.\\ \hline
+Porta & Ponto de entrada ou saída de um componente, por onde ele se comunica com o ambiente externo.\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
 
 \end{document}
