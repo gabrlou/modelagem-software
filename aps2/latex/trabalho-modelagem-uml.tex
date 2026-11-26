@@ -642,9 +642,13 @@ que mostram os componentes internos do \emph{Frontend} e do
 
 O sistema é uma aplicação web em camadas, organizada nos pacotes
 \emph{Frontend}, \emph{Backend}, \emph{Integrações}, \emph{Dados} e
-\emph{Serviços Externos}. Os serviços externos são acessados apenas por
-\textbf{adaptadores}, o que permite trocar o gateway de pagamento, o
-serviço de frete ou o de e-mail sem alterar o núcleo.
+\emph{Serviços Externos}. Os serviços externos (gateway de pagamento,
+serviço de frete e serviço de e-mail) têm, cada um, a sua própria forma de
+ser usado. Para o sistema não depender dessas formas, cada serviço tem um
+\textbf{adaptador}: um componente que faz a ``tradução'' entre o sistema e o
+serviço. O Backend conhece apenas a interface do adaptador, então trocar de
+gateway, de frete ou de e-mail muda só o adaptador e não altera o restante do
+sistema.
 
 \begin{figure}[H]
 \centering
@@ -675,11 +679,11 @@ Carrinho & Itens e subtotal. & \texttt{ICarrinho} & \texttt{ICatalogo}\\ \hline
 Pedidos & Finalização do pedido, status e cancelamento. & \texttt{IPedidos} & \texttt{ICarrinho}, \texttt{IEstoque}, \texttt{IFrete}, \texttt{IPagamento}, \texttt{INotificacao}, \texttt{IDados} (via Repositórios)\\ \hline
 Estoque & Disponibilidade, reserva, baixa e ajustes. & \texttt{IEstoque} & \texttt{IDados} (via Repositórios)\\ \hline
 Notificações & Monta e envia e-mails de status. & \texttt{INotificacao} & \texttt{IEmail}\\ \hline
-Adaptador de Pagamento & Comunica-se com o gateway de pagamento. & \texttt{IPagamento} & \texttt{IGateway}\\ \hline
+Adaptador de Pagamento & Comunica-se com o gateway de pagamento. & \texttt{IPagamento}, \texttt{IConfirmacao} & \texttt{IGateway}\\ \hline
 Adaptador de Frete & Comunica-se com o serviço de frete. & \texttt{IFrete} & \texttt{IServicoFrete}\\ \hline
 Adaptador de E-mail & Comunica-se com o serviço de e-mail. & \texttt{IEmail} & \texttt{IServicoEmail}\\ \hline
 Banco de Dados & Persistência dos dados. & \texttt{IDados} & Nenhuma\\ \hline
-Gateway de Pagamento, Serviço de Frete, Serviço de E-mail (externos) & Serviços de terceiros. & \texttt{IGateway}, \texttt{IServicoFrete}, \texttt{IServicoEmail} & Nenhuma\\ \arrayrulecolor{black}\bottomrule
+Gateway de Pagamento, Serviço de Frete, Serviço de E-mail (externos) & Serviços de terceiros. & \texttt{IGateway}, \texttt{IServicoFrete}, \texttt{IServicoEmail} & \texttt{IConfirmacao}\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
 }
 
@@ -703,24 +707,26 @@ Gateway de Pagamento, Serviço de Frete, Serviço de E-mail (externos) & Serviç
 \texttt{IEstoque} & Consulta de disponibilidade, reserva, baixa e ajuste das quantidades.\\ \hline
 \texttt{INotificacao} & Envio de avisos ao cliente sobre o pedido.\\ \hline
 \texttt{IPagamento} & Cobrança e estorno de pagamentos. Oferecida pelo adaptador de pagamento.\\ \hline
+\texttt{IConfirmacao} & Recebe o aviso de pagamento confirmado (Pix e boleto). Oferecida pelo adaptador de pagamento, pela porta de \emph{webhook}.\\ \hline
 \texttt{IFrete} & Cálculo de valor e prazo de entrega. Oferecida pelo adaptador de frete.\\ \hline
 \texttt{IEmail} & Envio de e-mails. Oferecida pelo adaptador de e-mail.\\ \hline
 \texttt{IDados} & Gravação e consulta de dados no banco de dados.\\ \hline
 \texttt{IGateway}, \texttt{IServicoFrete}, \texttt{IServicoEmail} & Serviços oferecidos pelos sistemas externos: cobrança e estorno, cotação de frete e envio de e-mail.\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
 
-\paragraph{Leitura do diagrama.} As setas tracejadas entre os pacotes indicam dependência: o Frontend depende do Backend, o Backend depende das Integrações e as Integrações dependem dos Serviços Externos. Os módulos usam o banco de dados por meio dos Repositórios (descritos na seção \ref{sec:backend-detalhe}); por isso a dependência de \texttt{IDados} aparece no nível do pacote Backend, e não em cada módulo.
+\paragraph{Leitura do diagrama.} As setas tracejadas entre os pacotes indicam dependência: o Frontend depende do Backend, o Backend depende das Integrações e as Integrações dependem dos Serviços Externos. \textbf{Nota:} o pacote Integrações reúne os três adaptadores (pagamento, frete e e-mail) e fica entre o Backend e os Serviços Externos. Assim, só ele conhece os detalhes dos serviços de fora. Os módulos usam o banco de dados por meio dos Repositórios (descritos na seção \ref{sec:backend-detalhe}); por isso a dependência de \texttt{IDados} aparece no nível do pacote Backend, e não em cada módulo.
 
 \paragraph{Justificativa das dependências.} A \emph{API} é o único ponto
 de entrada, o que centraliza segurança e controle de perfil. \emph{Pedidos}
-depende de \emph{Carrinho}, \emph{Estoque}, \emph{Frete}, \emph{Pagamento}
-e \emph{Notificações} porque a finalização do pedido orquestra esses serviços. O
+depende de \emph{Carrinho}, \emph{Estoque} e \emph{Notificações} e, pelos
+adaptadores, dos serviços de frete e de pagamento, porque a finalização do
+pedido orquestra todos eles. O
 \emph{Catálogo} consulta \emph{Estoque} para exibir a disponibilidade, e o
 \emph{Carrinho} obtém preço e disponibilidade pelo \emph{Catálogo}.
 Nenhum módulo de negócio acessa serviço externo diretamente, apenas
 pelos adaptadores. Há duas \textbf{portas}: a porta HTTPS da \emph{API}
 (entrada pública) e a porta de \emph{webhook} do \emph{Adaptador de
-Pagamento} (confirmação de Pix e boleto).
+Pagamento} (confirmação de Pix e boleto). Por essa porta, o gateway chama a interface \texttt{IConfirmacao} do adaptador para avisar que o pagamento foi confirmado.
 
 \subsection{Detalhe Interno: Frontend}
 

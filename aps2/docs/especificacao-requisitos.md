@@ -361,7 +361,7 @@ Caixa **"Site de Loja de Eletrônicos"**. Dentro: casos de uso. Fora: Visitante,
 
 ### 8.1 Visão geral (Diagrama de Componentes **geral**)
 
-Aplicação web em camadas, com serviços externos acessados por **adaptadores** (RNF-06).
+Aplicação web em camadas, com serviços externos acessados por **adaptadores** (RNF-06): componentes que "traduzem" entre o sistema e cada serviço de fora (pagamento, frete, e-mail), de modo que trocar um serviço altera só o adaptador.
 
 | Pacote | Componentes |
 |---|---|
@@ -384,7 +384,7 @@ Aplicação web em camadas, com serviços externos acessados por **adaptadores**
 | Pedidos | Finalização do pedido, status e cancelamento | `IPedidos` | `ICarrinho`, `IEstoque`, `IFrete`, `IPagamento`, `INotificacao`, `IDados` (via Repositórios) |
 | Estoque | Disponibilidade, reserva, baixa e ajustes | `IEstoque` | `IDados` (via Repositórios) |
 | Notificações | Monta e envia e-mails de status | `INotificacao` | `IEmail` |
-| Adaptador de Pagamento | Fala com o gateway de pagamento | `IPagamento` | `IGateway` (externo) |
+| Adaptador de Pagamento | Fala com o gateway de pagamento | `IPagamento`, `IConfirmacao` (webhook) | `IGateway` (externo) |
 | Adaptador de Frete | Fala com o serviço de frete | `IFrete` | `IServicoFrete` (externo) |
 | Adaptador de E-mail | Fala com o serviço de e-mail | `IEmail` | `IServicoEmail` (externo) |
 | Banco de Dados | Persistência | `IDados` | Nenhuma |
