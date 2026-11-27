@@ -1,0 +1,652 @@
+% =============================================================================
+% APRESENTAÇÃO APS2 — versão 2 (estrutura de cartões, etiquetas e faixas)
+% Tema UFG (capa, divisórias e encerramento) + slides de conteúdo desenhados em TikZ.
+% Compilar: tectonic apresentacao-aps2-v2.tex
+% =============================================================================
+\documentclass[aspectratio=169,t,xcolor=table]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+\usetheme{Ufg}
+\graphicspath{{../assets/}{../assets/simbolos/}{figs/}}
+\setbeamersize{text margin left=0.05\textwidth, text margin right=0.05\textwidth}
+
+% ------------------------------------------------------------------ cores
+\definecolor{Navy}{RGB}{0,92,161}        % INFBlue
+\definecolor{Claro}{RGB}{226,238,248}
+\definecolor{Fundo}{RGB}{245,247,250}
+\definecolor{Borda}{RGB}{220,226,234}
+\definecolor{Texto}{RGB}{33,33,33}
+\definecolor{Cinza}{RGB}{100,116,139}
+\definecolor{Destaque}{RGB}{255,193,7}   % LightOrange do tema
+\definecolor{Principal}{RGB}{0,114,185}  % casos principais (azul)
+\definecolor{Apoio}{RGB}{240,170,20}     % casos de apoio (amarelo)
+\definecolor{PFront}{RGB}{0,114,185}
+\definecolor{PBack}{RGB}{91,141,8}
+\definecolor{PInt}{RGB}{240,170,20}
+\definecolor{PExt}{RGB}{142,36,170}
+\definecolor{PDados}{RGB}{214,96,96}
+
+\newcommand{\inc}{\guillemotleft include\guillemotright}
+\newcommand{\ext}{\guillemotleft extend\guillemotright}
+
+% ------------------------------------------------------------------ layout base
+\newcommand{\setLayoutClean}{\usebackgroundtemplate{}\setDefaultConfig}
+
+\newcommand{\slideDiagrama}[2]{%
+    \begin{frame}[plain]
+        \vspace{0.12cm}\centering
+        {\normalsize\sffamily\bfseries\color{UFGBlue} #1}\par\vspace{0.08cm}\vfill
+        \makebox[\textwidth][c]{\includegraphics[width=0.96\paperwidth,height=0.86\paperheight,keepaspectratio]{#2}}%
+        \vfill
+    \end{frame}}
+\newcommand{\slideRegiao}[3]{%
+    \begin{frame}[plain]
+        \vspace{0.12cm}\centering
+        {\normalsize\sffamily\bfseries\color{UFGBlue} #1}\par\vspace{0.08cm}\vfill
+        \makebox[\textwidth][c]{\includegraphics[trim=#3,clip,width=0.96\paperwidth,height=0.86\paperheight,keepaspectratio]{#2}}%
+        \vfill
+    \end{frame}}
+
+\AtBeginSection[]{%
+    \setLayout{mainpoint}\setBGColor{UFGBlue}%
+    \begin{frame}[plain,noframenumbering]{}\frametitle{\fonteTela\LARGE\insertsectionnumber.\ \insertsectionhead}\end{frame}%
+    \setLayoutClean}
+
+% ponto em pt a partir do canto superior esquerdo da página (160 x 90 mm)
+\newcommand{\pto}[2]{($(current page.north west)+({(#1)*1pt},{-(#2)*1pt})$)}
+
+% fundo: etiqueta-escura etiqueta-clara título subtítulo
+\newcommand{\fundo}[4]{%
+  \fill[Fundo] (current page.south west) rectangle (current page.north east);
+  \shade[left color=Navy, right color=UFGBlue]
+    (current page.south west) rectangle ($(current page.south east)+(0,14pt)$);
+  \node[anchor=north west, inner xsep=5pt, inner ysep=2.3pt, fill=Navy, rounded corners=6pt, text=white,
+        font=\sffamily\fontsize{5.5pt}{6.4pt}\selectfont\bfseries] (pa) at \pto{25}{12} {#1};
+  \node[anchor=west, inner xsep=5pt, inner ysep=2.3pt, fill=Claro, rounded corners=6pt, text=Navy,
+        font=\sffamily\fontsize{5.5pt}{6.4pt}\selectfont\bfseries] at ($(pa.east)+(4pt,0)$) {#2};
+  \node[anchor=north west, inner sep=0pt, text=Navy, text width=380pt, align=flush left] at \pto{25}{27}
+    {\fontsize{15pt}{17pt}\selectfont\bfseries #3\par};
+  \node[anchor=north west, inner sep=0pt, text=Cinza, text width=404pt, align=flush left] at \pto{25}{50}
+    {\fontsize{7.3pt}{9.2pt}\selectfont #4\par};
+  \node[anchor=north east, inner sep=0pt] at \pto{429}{12}
+    {\includegraphics[height=20pt]{lib/logos/INF-compact-black.png}};
+  \node[anchor=south west, inner sep=0pt, text=white] at \pto{25}{251}
+    {\fontsize{4.8pt}{5.5pt}\selectfont Modelagem de Software · APS2 · Site de Loja de Eletrônicos · UFG/INF};
+  \node[anchor=south east, inner sep=0pt, text=white] at \pto{429}{251}
+    {\fontsize{5pt}{5.5pt}\selectfont Grupo 4 \quad|\quad \insertframenumber\ / \inserttotalframenumber};
+}
+
+% marca de destaque (canto dos quadros)
+\newcommand{\gota}[2]{\fill[Destaque] \pto{#1}{#2} circle (3.2pt); \fill[Destaque] \pto{#1}{#2} rectangle ++(3.2pt,3.2pt);}
+
+% cartão com barra lateral: x y larg alt cor título texto
+\newcommand{\cartao}[7]{%
+  \fill[white] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \draw[Borda, line width=0.5pt] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \fill[#5] \pto{#1}{#2} rectangle \pto{#1+3}{#2+#4};
+  \node[anchor=north west, inner sep=0pt, text=Navy, text width={(#3-18)*1pt}, align=flush left] at \pto{#1+11}{#2+6}
+    {\fontsize{8.4pt}{10pt}\selectfont\bfseries #6\par\vspace{2pt}
+     {\color{Texto}\fontsize{6.6pt}{8.3pt}\selectfont\mdseries #7\par}};
+}
+
+% faixa larga: y alt cor título texto
+\newcommand{\faixa}[5]{%
+  \fill[white] \pto{25}{#1} rectangle \pto{429}{#1+#2};
+  \draw[Borda, line width=0.5pt] \pto{25}{#1} rectangle \pto{429}{#1+#2};
+  \fill[#3] \pto{25}{#1} rectangle \pto{28}{#1+#2};
+  \node[anchor=west, inner sep=0pt, text=Navy, text width=104pt, align=flush left] at \pto{38}{#1+#2/2}
+    {\fontsize{7.8pt}{9.2pt}\selectfont\bfseries #4\par};
+  \node[anchor=west, inner sep=0pt, text=Texto, text width=274pt, align=flush left] at \pto{146}{#1+#2/2}
+    {\fontsize{6.7pt}{8.4pt}\selectfont #5\par};
+}
+
+% quadro de número (claro e escuro): x y larg alt número rótulo detalhe
+\newcommand{\tile}[7]{%
+  \fill[white] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \draw[Borda, line width=0.5pt] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \gota{#1+#3-11}{#2+11}
+  \node[anchor=north west, inner sep=0pt, text=Navy] at \pto{#1+11}{#2+7} {\fontsize{24pt}{26pt}\selectfont\bfseries #5\par};
+  \node[anchor=north west, inner sep=0pt, text=Navy, text width={(#3-22)*1pt}, align=flush left] at \pto{#1+11}{#2+37}
+    {\fontsize{7.6pt}{9.2pt}\selectfont\bfseries #6\par\vspace{1.5pt}{\color{Cinza}\fontsize{6.4pt}{8pt}\selectfont\mdseries #7\par}};
+}
+\newcommand{\tileD}[7]{%
+  \fill[Navy] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \gota{#1+#3-11}{#2+11}
+  \node[anchor=north west, inner sep=0pt, text=white] at \pto{#1+11}{#2+7} {\fontsize{24pt}{26pt}\selectfont\bfseries #5\par};
+  \node[anchor=north west, inner sep=0pt, text=white, text width={(#3-22)*1pt}, align=flush left] at \pto{#1+11}{#2+37}
+    {\fontsize{7.6pt}{9.2pt}\selectfont\bfseries #6\par\vspace{1.5pt}{\color{white!85!Navy}\fontsize{6.4pt}{8pt}\selectfont\mdseries #7\par}};
+}
+
+% cartão de decisão numerado: x y larg alt número título etiqueta texto
+\newcommand{\decisao}[8]{%
+  \fill[white] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \draw[Borda, line width=0.5pt] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \fill[Destaque] \pto{#1+15}{#2+15} circle (7.5pt);
+  \node[text=Navy, inner sep=0pt] at \pto{#1+15}{#2+15} {\fontsize{8pt}{9pt}\selectfont\bfseries #5\par};
+  \node[anchor=west, inner sep=0pt, text=Navy, text width={(#3-36)*1pt}, align=flush left] at \pto{#1+28}{#2+15}
+    {\fontsize{7.8pt}{9pt}\selectfont\bfseries #6\par};
+  \node[anchor=north west, inner xsep=3.5pt, inner ysep=1.6pt, draw=UFGBlue, fill=white, rounded corners=3pt,
+        text=UFGBlue, line width=0.6pt, font=\sffamily\fontsize{5.2pt}{6pt}\selectfont\bfseries] at \pto{#1+10}{#2+29} {#7};
+  \node[anchor=north west, inner sep=0pt, text=Texto, text width={(#3-20)*1pt}, align=flush left] at \pto{#1+10}{#2+43}
+    {\fontsize{6.5pt}{8.2pt}\selectfont #8\par};
+}
+
+% linha compacta: y alt cor nome texto rótulo cor-do-texto-do-rótulo
+\newcommand{\linha}[7]{%
+  \fill[white] \pto{25}{#1} rectangle \pto{429}{#1+#2};
+  \draw[Borda, line width=0.5pt] \pto{25}{#1} rectangle \pto{429}{#1+#2};
+  \fill[#3] \pto{25}{#1} rectangle \pto{28}{#1+#2};
+  \node[anchor=west, inner sep=0pt, text=Navy, text width=120pt, align=flush left] at \pto{36}{#1+#2/2}
+    {\fontsize{7pt}{8.2pt}\selectfont\bfseries #4\par};
+  \node[anchor=west, inner sep=0pt, text=Texto, text width=196pt, align=flush left] at \pto{160}{#1+#2/2}
+    {\fontsize{6.6pt}{8pt}\selectfont #5\par};
+  \node[anchor=east, inner xsep=4pt, inner ysep=1.6pt, fill=#3, rounded corners=3pt, text=#7,
+        font=\sffamily\fontsize{5.3pt}{6.2pt}\selectfont\bfseries] at \pto{421}{#1+#2/2} {#6};
+}
+
+% linha com símbolo: y alt imagem nome texto
+\newcommand{\linhasimb}[5]{%
+  \fill[white] \pto{25}{#1} rectangle \pto{429}{#1+#2};
+  \draw[Borda, line width=0.5pt] \pto{25}{#1} rectangle \pto{429}{#1+#2};
+  \fill[Navy] \pto{25}{#1} rectangle \pto{28}{#1+#2};
+  \node[inner sep=0pt] at \pto{80}{#1+#2/2} {\includegraphics[height=\dimexpr #2pt-8pt\relax,width=92pt,keepaspectratio]{#3}};
+  \node[anchor=west, inner sep=0pt, text=Navy, text width=96pt, align=flush left] at \pto{140}{#1+#2/2}
+    {\fontsize{7.4pt}{8.6pt}\selectfont\bfseries #4\par};
+  \node[anchor=west, inner sep=0pt, text=Texto, text width=180pt, align=flush left] at \pto{244}{#1+#2/2}
+    {\fontsize{6.7pt}{8.2pt}\selectfont #5\par};
+}
+
+% passo numerado: x y larg alt número texto [etiqueta] [cor-etiqueta] [cor-texto-etiqueta]
+\newcommand{\passo}[9]{%
+  \fill[white] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \draw[Borda, line width=0.5pt] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \fill[Destaque] \pto{#1+14}{#2+#4/2} circle (6.2pt);
+  \node[text=Navy, inner sep=0pt] at \pto{#1+14}{#2+#4/2} {\fontsize{6.8pt}{8pt}\selectfont\bfseries #5\par};
+  \node[anchor=west, inner sep=0pt, text=Texto, text width={(#3-92)*1pt}, align=flush left] at \pto{#1+26}{#2+#4/2}
+    {\fontsize{6.8pt}{8.2pt}\selectfont #6\par};
+  \node[anchor=east, inner xsep=4pt, inner ysep=1.6pt, fill=#8, rounded corners=3pt, text=#9,
+        font=\sffamily\fontsize{5.2pt}{6pt}\selectfont\bfseries] at \pto{#1+#3-7}{#2+#4/2} {#7};
+}
+
+% seta encadeada (chevron): x y larg alt cor-fundo cor-texto título texto
+\newcommand{\chev}[8]{%
+  \fill[#5] \pto{#1}{#2} -- \pto{#1+#3-10}{#2} -- \pto{#1+#3}{#2+#4/2} -- \pto{#1+#3-10}{#2+#4}
+            -- \pto{#1}{#2+#4} -- \pto{#1+10}{#2+#4/2} -- cycle;
+  \node[anchor=west, inner sep=0pt, text=#6, text width={(#3-30)*1pt}, align=flush left] at \pto{#1+17}{#2+#4/2}
+    {\fontsize{7pt}{8.4pt}\selectfont\bfseries #7\par\vspace{1pt}{\fontsize{5.8pt}{7pt}\selectfont\mdseries #8\par}};
+}
+
+% cartão de relacionamento com símbolo: x y larg alt cor título texto imagem
+\newcommand{\tipo}[8]{%
+  \fill[white] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \draw[Borda, line width=0.5pt] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \fill[#5] \pto{#1}{#2} rectangle \pto{#1+3}{#2+#4};
+  \node[anchor=north west, inner sep=0pt, text=Navy, text width={(#3-110)*1pt}, align=flush left] at \pto{#1+11}{#2+7}
+    {\fontsize{8.4pt}{10pt}\selectfont\bfseries #6\par\vspace{2pt}{\color{Texto}\fontsize{6.5pt}{8.2pt}\selectfont\mdseries #7\par}};
+  \node[inner sep=0pt] at \pto{#1+#3-50}{#2+#4/2} {\includegraphics[width=84pt,height=\dimexpr #4pt-14pt\relax,keepaspectratio]{#8}};
+}
+
+% painel escuro com mensagem principal: x y larg alt etiqueta título texto
+\newcommand{\painel}[7]{%
+  \fill[Navy] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \gota{#1+#3-11}{#2+11}
+  \node[anchor=north west, inner sep=0pt, text=Destaque] at \pto{#1+13}{#2+12} {\fontsize{5.8pt}{6.6pt}\selectfont\bfseries #5\par};
+  \node[anchor=north west, inner sep=0pt, text=white, text width={(#3-26)*1pt}, align=flush left] at \pto{#1+13}{#2+26}
+    {\fontsize{11pt}{13.5pt}\selectfont\bfseries #6\par};
+  \node[anchor=south west, inner sep=0pt, text=white, text width={(#3-26)*1pt}, align=flush left] at \pto{#1+13}{#2+#4-10}
+    {\fontsize{6.7pt}{8.6pt}\selectfont #7\par};
+}
+
+% cartão de caso de uso padronizado: x y larg alt cor título cabeçalho passos alternativos
+\newcommand{\cucard}[9]{%
+  \fill[white] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \draw[Borda, line width=0.5pt] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \fill[#5] \pto{#1}{#2} rectangle \pto{#1+3}{#2+#4};
+  \node[anchor=north west, inner sep=0pt, text=Navy, text width={(#3-18)*1pt}, align=flush left] at \pto{#1+11}{#2+6}
+    {\fontsize{8.2pt}{9.6pt}\selectfont\bfseries #6\par\vspace{2.5pt}
+     {\color{Texto}\fontsize{6.1pt}{7.45pt}\selectfont\mdseries #7\par\vspace{2.5pt}
+      {\color{Navy}\bfseries Fluxo:}\par #8\par\vspace{2.5pt}
+      {\color{Navy}\bfseries Alternativos:}\par #9\par}};
+}
+\newcommand{\cucardL}[9]{%
+  \fill[white] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \draw[Borda, line width=0.5pt] \pto{#1}{#2} rectangle \pto{#1+#3}{#2+#4};
+  \fill[#5] \pto{#1}{#2} rectangle \pto{#1+3}{#2+#4};
+  \node[anchor=north west, inner sep=0pt, text=Navy, text width={(#3-18)*1pt}, align=flush left] at \pto{#1+11}{#2+6}
+    {\fontsize{8.8pt}{10.4pt}\selectfont\bfseries #6\par\vspace{3pt}
+     {\color{Texto}\fontsize{6.6pt}{8pt}\selectfont\mdseries #7\par\vspace{3pt}
+      {\color{Navy}\bfseries Fluxo:}\par #8\par\vspace{3pt}
+      {\color{Navy}\bfseries Alternativos:}\par #9\par}};
+}
+
+\newfontfamily\fonteTela{Roboto}[Extension=.otf, UprightFont=*-Regular, BoldFont=*-Bold, ItalicFont=*-Italic, BoldItalicFont=*-BoldItalic, Ligatures=TeX]
+\renewcommand{\sffamily}{\fonteTela}
+\setmainfont{Roboto}[Extension=.otf, UprightFont=*-Regular, BoldFont=*-Bold, ItalicFont=*-Italic, BoldItalicFont=*-BoldItalic, Ligatures=TeX]
+\renewcommand{\familydefault}{\rmdefault}
+\newenvironment{tela}{\linespread{1}\fonteTela\selectfont\begin{tikzpicture}[remember picture, overlay]}{\end{tikzpicture}}
+
+% ------------------------------------------------------------------ identificação
+\setPrimaryColor{UFGBlue}
+\setLogos{lib/logos/INF-compact-white.png}{lib/logos/INF-compact-white.png}
+\title[Loja de Eletrônicos --- APS2]{Site de Loja de Eletrônicos (E-commerce)}
+\subtitle{Modelagem de Software --- APS2}
+\author[Grupo 4]{%
+  Carlos Eduardo Freire da Silva \and Gabriel Henrique Lourenço Dias \and Kayque Vicente Silva\\
+  Luiz Pedro Pereira Mendes Saraiva \and Yury Nogueira de Oliveira Silva}
+\institute[UFG/INF]{%
+  Instituto de Informática (INF) --- Universidade Federal de Goiás (UFG)\\
+  Bacharelado em Engenharia de Software --- Prof. Me. Diogo Oliveira Santos}
+\date{2026/2}
+
+\begin{document}
+
+\setLayout{titlepage}
+\frame[noframenumbering]{\titlepage}
+
+\setLayoutClean
+\begin{frame}[plain,noframenumbering]{Sumário}
+    \vspace{0.3cm}
+    \tableofcontents
+\end{frame}
+
+% =============================================================================
+\section{Visão Geral do Sistema}
+% =============================================================================
+
+% --- Carlos ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{1.1 · 1.2}{VISÃO GERAL}{Uma loja virtual de eletrônicos}
+    {Catálogo, carrinho e pedido para o cliente; produtos, estoque e pedidos para a loja}
+  \cartao{25}{80}{128}{80}{PFront}{O Cliente}
+    {Navega no catálogo com filtros por categoria, marca e preço, monta o carrinho e finaliza o pedido.}
+  \cartao{163}{80}{128}{80}{PInt}{Os Serviços Externos}
+    {Um gateway de pagamento e um serviço de frete; os avisos ao cliente saem por e-mail.}
+  \cartao{301}{80}{128}{80}{PBack}{A Área Administrativa}
+    {Cadastra produtos, controla o estoque e acompanha o status dos pedidos.}
+  \faixa{168}{32}{Navy}{Dentro do escopo}
+    {Cadastro e login, catálogo, carrinho, finalização com frete e pagamento (cartão, Pix ou boleto), consulta e cancelamento de pedidos, área administrativa e avisos por e-mail.}
+  \faixa{204}{24}{Destaque}{Fora do escopo}
+    {Cupons, avaliações, troca e devolução, nota fiscal, marketplace e aplicativo nativo.}
+\end{tela}\end{frame}
+
+% --- Carlos ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{1.3}{PREMISSAS}{Premissas que fecham as lacunas do tema}
+    {Suposições do grupo, registradas no documento para não inventar além do escopo}
+  \cartao{25}{80}{128}{68}{Navy}{Web app responsivo}{Funciona no celular e no computador; não há aplicativo nativo.}
+  \cartao{163}{80}{128}{68}{Navy}{Login só ao finalizar}{O visitante monta o carrinho sem conta; a identificação é pedida na finalização.}
+  \cartao{301}{80}{128}{68}{Navy}{Um perfil administrativo}{Um único tipo de administrador cuida de produtos, estoque e pedidos.}
+  \cartao{25}{156}{128}{68}{Destaque}{Cartão, Pix ou boleto}{Todas as formas de pagamento passam pelo gateway.}
+  \cartao{163}{156}{128}{68}{Destaque}{Só e-mail}{O e-mail é o único canal de aviso ao cliente.}
+  \cartao{301}{156}{128}{68}{Destaque}{Prazo de pagamento}{Pedido aguardando pagamento é cancelado após um prazo, e o estoque reservado volta.}
+\end{tela}\end{frame}
+
+% =============================================================================
+\section{Diagrama de Casos de Uso}
+% =============================================================================
+
+% --- Carlos ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2}{CASOS DE USO}{O diagrama em números}
+    {Um único diagrama, com cada caso de uso descrito em uma tabela no documento}
+  \tile{25}{80}{95}{80}{6}{Atores}{3 principais e 3 secundários}
+  \tile{128}{80}{95}{80}{13}{Casos de uso}{7 principais e 6 de apoio}
+  \tile{231}{80}{95}{80}{8}{\inc}{passos obrigatórios}
+  \tileD{334}{80}{95}{80}{2}{\ext}{fluxos com condição}
+  \faixa{170}{28}{Navy}{Onde está no documento}
+    {Diagrama na Seção 2.1 (Figura 1), decisões em 2.2, relacionamentos em 2.3 e a especificação de cada caso em 2.4 (Tabelas 4 a 16).}
+  \faixa{202}{26}{Destaque}{Modelo de cada tabela}
+    {Nome, atores envolvidos, pré-condições, fluxo principal e fluxos alternativos ou de exceção.}
+\end{tela}\end{frame}
+
+% --- Carlos ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.1}{ATORES}{Três usuários e três sistemas externos}
+    {Atores principais à esquerda do diagrama; secundários, que são sistemas externos, à direita (Tabela 1)}
+  \cartao{25}{80}{198}{46}{Principal}{Visitante \hfill{\color{Cinza}\fontsize{6pt}{7pt}\selectfont CU-01 · 02 · 12}}{Navega, filtra e busca produtos e monta o carrinho, sem conta.}
+  \cartao{25}{131}{198}{46}{Principal}{Cliente \hfill{\color{Cinza}\fontsize{6pt}{7pt}\selectfont CU-03 · 04}}{Visitante autenticado: finaliza e consulta pedidos. Herda do Visitante.}
+  \cartao{25}{182}{198}{46}{Principal}{Administrador \hfill{\color{Cinza}\fontsize{6pt}{7pt}\selectfont CU-05 · 06}}{Gerencia produtos, estoque e pedidos.}
+  \cartao{231}{80}{198}{46}{Apoio}{Gateway de Pagamento \hfill{\color{Cinza}\fontsize{6pt}{7pt}\selectfont CU-08 · 11}}{Autoriza e estorna pagamentos.}
+  \cartao{231}{131}{198}{46}{Apoio}{Serviço de Frete \hfill{\color{Cinza}\fontsize{6pt}{7pt}\selectfont CU-10}}{Calcula valor e prazo de entrega.}
+  \cartao{231}{182}{198}{46}{Apoio}{Serviço de E-mail \hfill{\color{Cinza}\fontsize{6pt}{7pt}\selectfont CU-13}}{Envia as mensagens de status do pedido.}
+\end{tela}\end{frame}
+
+\slideDiagrama{2.1 --- Diagrama de Casos de Uso (Figura 1)}{CU_CasosDeUso.pdf}
+\slideRegiao{2.1 --- Ampliação: Casos do Visitante}{CU_CasosDeUso.pdf}{0 520 300 0}
+\slideRegiao{2.1 --- Ampliação: Casos do Cliente, do Administrador e dos Atores Secundários}{CU_CasosDeUso.pdf}{0 0 0 290}
+
+% --- Carlos ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.1}{LEITURA DO DIAGRAMA}{Como ler o diagrama de casos de uso}
+    {As formas e as linhas dão o significado; as cores só agrupam}
+  \linhasimb{80}{28}{fronteira.pdf}{Fronteira}{Retângulo com o nome do sistema: tudo o que está dentro é o que foi modelado.}
+  \linhasimb{112}{28}{ator.pdf}{Ator}{Boneco: usuário (principal) ou sistema externo, com {\guillemotleft}sistema{\guillemotright} (secundário).}
+  \linhasimb{144}{28}{caso_uso.pdf}{Caso de uso}{Elipse: azul para os 7 principais, amarelo para os 6 de apoio.}
+  \linhasimb{176}{24}{associacao.pdf}{Associação}{Linha contínua: liga cada ator aos casos de uso em que participa.}
+  \linhasimb{204}{24}{nota.pdf}{Nota}{Guarda a condição de cada \ext, ligada à seta por linha tracejada.}
+\end{tela}\end{frame}
+
+% --- Carlos ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.2}{DECISÕES DE MODELAGEM}{Seis decisões que dão forma ao diagrama}
+    {Por que cada relacionamento foi escolhido (Seção 2.2)}
+  \decisao{25}{80}{128}{72}{1}{Cliente herda de Visitante}{GENERALIZAÇÃO}{Os casos de navegação não se repetem para os dois.}
+  \decisao{163}{80}{128}{72}{2}{Autenticar é um caso só}{\inc}{Passo igual para finalizar, consultar e administrar.}
+  \decisao{301}{80}{128}{72}{3}{Frete e pagamento à parte}{\inc}{O pedido não existe sem eles, e cada um tem seu sistema externo.}
+  \decisao{25}{158}{128}{72}{4}{Filtrar e Cancelar}{\ext}{O fluxo base se completa sem eles; só entram com a condição.}
+  \decisao{163}{158}{128}{72}{5}{Notificar é um caso à parte}{APOIO}{Dois casos disparam o aviso (CU-06 e CU-08).}
+  \decisao{301}{158}{128}{72}{6}{Cadastrar-se é do Visitante}{PRINCIPAL}{É como ele vira Cliente, não uma variação do login.}
+\end{tela}\end{frame}
+
+% --- Gabriel ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.3}{RELACIONAMENTOS}{Quatro tipos de relacionamento}
+    {Dois ligam ator e caso de uso; dois ligam casos de uso entre si (Tabela 2)}
+  \tipo{25}{80}{198}{70}{Navy}{Associação}{Liga cada ator aos casos de uso em que participa. Ex.: Visitante e CU-01.}{associacao.pdf}
+  \tipo{231}{80}{198}{70}{Navy}{Generalização}{O ator mais específico herda do mais geral. Ex.: Cliente herda de Visitante.}{generalizacao.pdf}
+  \tipo{25}{158}{198}{70}{Principal}{\inc}{O caso de origem sempre executa o de destino. Ex.: CU-03 inclui CU-09.}{include.pdf}
+  \tipo{231}{158}{198}{70}{Apoio}{\ext}{Só entra quando a condição da nota é verdadeira. Ex.: CU-07 estende CU-01.}{extend.pdf}
+\end{tela}\end{frame}
+
+% --- Gabriel ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.3}{RELACIONAMENTOS NO DIAGRAMA}{Oito \inc\ e dois \ext}
+    {Cada relacionamento do diagrama, na direção da seta (Tabela 3)}
+  \linha{78}{14}{Principal}{CU-03 $\rightarrow$ CU-09}{Só o cliente autenticado finaliza um pedido.}{INCLUDE}{white}
+  \linha{94}{14}{Principal}{CU-03 $\rightarrow$ CU-10}{Sem o frete não há valor total do pedido.}{INCLUDE}{white}
+  \linha{110}{14}{Principal}{CU-03 $\rightarrow$ CU-11}{O pedido só avança com o pagamento.}{INCLUDE}{white}
+  \linha{126}{14}{Principal}{CU-04 $\rightarrow$ CU-09}{Cada cliente só vê os próprios pedidos.}{INCLUDE}{white}
+  \linha{142}{14}{Principal}{CU-05 $\rightarrow$ CU-09}{A área administrativa é restrita.}{INCLUDE}{white}
+  \linha{158}{14}{Principal}{CU-06 $\rightarrow$ CU-09}{A área administrativa é restrita.}{INCLUDE}{white}
+  \linha{174}{14}{Principal}{CU-06 $\rightarrow$ CU-13}{O cliente é avisado a cada mudança de status.}{INCLUDE}{white}
+  \linha{190}{14}{Principal}{CU-08 $\rightarrow$ CU-13}{O cliente é avisado do cancelamento.}{INCLUDE}{white}
+  \linha{206}{14}{Apoio}{CU-07 $\rightarrow$ CU-01}{Quando o visitante aplica um filtro ou faz uma busca.}{EXTEND}{Texto}
+  \linha{222}{14}{Apoio}{CU-08 $\rightarrow$ CU-04}{Quando o cliente cancela, só se o pedido não foi enviado.}{EXTEND}{Texto}
+\end{tela}\end{frame}
+
+% --- Gabriel ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.4}{ESPECIFICAÇÃO · CU-01 · CU-02}{Navegar no catálogo e montar o carrinho}
+    {Os casos de entrada do Visitante (Tabelas 4 e 5)}
+  \cucardL{25}{78}{198}{152}{Principal}{CU-01 Navegar no Catálogo}
+    {\textbf{Ator:} Visitante.\par \textbf{Pré-condição:} nenhuma.}
+    {1. O Visitante acessa o catálogo.\par 2. O sistema lista os produtos ativos.\par 3. O Visitante abre um produto.\par 4. O sistema mostra os detalhes e a disponibilidade.}
+    {\textbf{A1} (passo 2) Aplica filtro ou busca: segue o CU-07.\par \textbf{A2} (passo 2) Nenhum produto atende: o sistema sugere limpar os filtros.}
+  \cucardL{231}{78}{198}{152}{Principal}{CU-02 Gerenciar Carrinho}
+    {\textbf{Atores:} Visitante e Cliente.\par \textbf{Pré-condição:} produto ativo e disponível.}
+    {1. Adiciona um produto, informando a quantidade.\par 2. O sistema confere a disponibilidade.\par 3. O sistema atualiza o carrinho e o subtotal.\par 4. Altera quantidades ou remove itens.\par 5. Segue para a finalização (CU-03) ou continua comprando.}
+    {\textbf{A1} (passo 5) Ao entrar na conta, os itens passam para o Cliente.\par \textbf{E1} (passo 2) Quantidade acima do estoque: o sistema limita e avisa.\par \textbf{E2} (passo 3) Item indisponível: o sistema sinaliza.}
+\end{tela}\end{frame}
+
+% --- Gabriel ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.4}{ESPECIFICAÇÃO · CU-03}{CU-03: só existe pedido com frete e pagamento}
+    {O caso mais completo: inclui o CU-09, o CU-10 e o CU-11 (Tabela 6)}
+  \cucard{25}{78}{404}{152}{Principal}{CU-03 Finalizar Pedido}
+    {\textbf{Ator:} Cliente. O Serviço de Frete e o Gateway de Pagamento participam pelos casos incluídos.\par \textbf{Pré-condição:} carrinho com ao menos um item.}
+    {1. O Cliente inicia a finalização e se autentica (CU-09).\par 2. O Cliente informa o endereço de entrega.\par 3. O sistema obtém as opções de frete com o Serviço de Frete (CU-10).\par 4. O Cliente escolhe uma opção de frete.\par 5. O Cliente escolhe a forma de pagamento (cartão, Pix ou boleto).\par 6. O Cliente confirma o resumo do pedido.\par 7. O sistema reserva o estoque e cria o pedido.\par 8. O sistema envia a cobrança ao Gateway de Pagamento (CU-11).\par 9. O pagamento é aprovado e o pedido passa para pago.}
+    {\textbf{A1} (passo 9) Pix ou boleto: o pedido aguarda a confirmação do Gateway.\par \textbf{E1} (passo 9) Pagamento recusado: o Cliente pode tentar outra forma.\par \textbf{E2} (passo 7) Item sem estoque: o sistema avisa e ajusta o carrinho.\par \textbf{E3} (passo 3) Frete indisponível: a finalização não avança.}
+\end{tela}\end{frame}
+
+% --- Gabriel ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.4}{ESPECIFICAÇÃO · CU-04 · CU-05 · CU-06}{Consultar pedidos e administrar a loja}
+    {O Cliente acompanha os próprios pedidos; o Administrador cuida de produtos, estoque e pedidos (Tabelas 7 a 9)}
+  \cucard{25}{78}{128}{152}{Principal}{CU-04 Consultar Pedidos}
+    {\textbf{Ator:} Cliente.\par \textbf{Pré-condição:} conta e ao menos um pedido.}
+    {1. Autentica-se (CU-09).\par 2. Abre ``Meus Pedidos''.\par 3. O sistema lista os pedidos, com data e status.\par 4. Abre um pedido.\par 5. O sistema mostra itens, valores e histórico.}
+    {\textbf{A1} (passo 5) Decide cancelar: CU-08.\par \textbf{E1} (passo 4) Pedido de outro cliente: acesso negado.}
+  \cucard{163}{78}{128}{152}{Principal}{CU-05 Produtos e Estoque}
+    {\textbf{Ator:} Administrador.\par \textbf{Pré-condição:} conta de administrador.}
+    {1. Autentica-se (CU-09).\par 2. Cadastra ou edita um produto.\par 3. O sistema valida e publica.\par 4. Ajusta a quantidade em estoque.\par 5. O sistema atualiza a quantidade.}
+    {\textbf{A1} (passo 2) Inativa o produto.\par \textbf{A2} (passo 2) Cria categoria ou marca nova.\par \textbf{E1} (passo 3) Dados inválidos.\par \textbf{E2} (passo 5) Estoque negativo: rejeitado.}
+  \cucard{301}{78}{128}{152}{Principal}{CU-06 Gerenciar Pedidos}
+    {\textbf{Ator:} Administrador; E-mail pelo CU-13.\par \textbf{Pré-condição:} ao menos um pedido.}
+    {1. Autentica-se (CU-09).\par 2. Filtra por status, data ou cliente.\par 3. O sistema lista os pedidos.\par 4. Abre um e escolhe o novo status.\par 5. O sistema valida e atualiza.\par 6. Avisa o Cliente (CU-13).}
+    {\textbf{A1} (passo 4) Enviado: informa o rastreio.\par \textbf{A2} (passo 4) Cancela com motivo.\par \textbf{E1 · E2} (passo 5) Mudança não permitida; envio sem rastreio.}
+\end{tela}\end{frame}
+
+% --- Gabriel ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.4}{STATUS DO PEDIDO}{O caminho de um pedido, do pagamento à entrega}
+    {Os status que o CU-06 controla e o limite do cancelamento (Apêndice A, RN-04 e RN-05)}
+  \chev{25}{84}{88}{40}{Claro}{Navy}{Aguardando}{pagamento}
+  \chev{105}{84}{88}{40}{Claro}{Navy}{Pago}{estoque baixado}
+  \chev{185}{84}{88}{40}{Claro}{Navy}{Em separação}{pelo administrador}
+  \chev{265}{84}{88}{40}{Navy}{white}{Enviado}{com código de rastreio}
+  \chev{345}{84}{84}{40}{Navy}{white}{Entregue}{fim do ciclo}
+  \faixa{138}{28}{Destaque}{Cancelamento}
+    {Possível nos três primeiros status (CU-08). Se o pedido já foi pago, o valor é estornado pelo gateway; o estoque reservado volta.}
+  \faixa{170}{28}{Navy}{Aviso ao cliente}
+    {A cada mudança de status, o CU-13 envia um e-mail. Se o envio falha, nenhuma operação é desfeita (RN-06).}
+  \faixa{202}{26}{Navy}{Prazo de pagamento}
+    {Pix ou boleto não pagos no prazo cancelam o pedido e devolvem o estoque reservado.}
+\end{tela}\end{frame}
+
+% --- Kayque ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.4}{ESPECIFICAÇÃO · CU-07 · CU-08 · CU-09}{Filtrar, cancelar e autenticar}
+    {Duas extensões e o passo de login reutilizado por quatro casos (Tabelas 10 a 12)}
+  \cucard{25}{78}{128}{152}{Apoio}{CU-07 Filtrar / Buscar}
+    {\textbf{Ator:} Visitante.\par \textbf{Pré-condição:} lista do CU-01 exibida.}
+    {1. Escolhe categoria, marca e/ou faixa de preço, ou digita um termo.\par 2. O sistema aplica os filtros.\par 3. O sistema atualiza a lista e o total.}
+    {\textbf{A1} (passo 3) Nenhum resultado: sugere limpar.\par \textbf{E1} (passo 2) Faixa de preço inválida: pede correção.}
+  \cucard{163}{78}{128}{152}{Apoio}{CU-08 Cancelar Pedido}
+    {\textbf{Atores:} Cliente e Gateway; E-mail pelo CU-13.\par \textbf{Pré-condição:} pedido aguardando pagamento, pago ou em separação.}
+    {1. Escolhe cancelar e informa o motivo.\par 2. Confirma o cancelamento.\par 3. O sistema cancela e devolve o estoque.\par 4. Avisa o Cliente (CU-13).}
+    {\textbf{A1} (passo 3) Já pago: estorno.\par \textbf{A2} (passo 2) Desiste: nada muda.\par \textbf{E1} (passo 1) Já enviado: indisponível.\par \textbf{E2} (passo 3) Estorno falha: fica pendente.}
+  \cucard{301}{78}{128}{152}{Apoio}{CU-09 Autenticar Usuário}
+    {\textbf{Atores:} Cliente e Administrador.\par \textbf{Pré-condição:} conta cadastrada.}
+    {1. Informa e-mail e senha.\par 2. O sistema valida.\par 3. Identifica o perfil e inicia a sessão.\par 4. Volta ao ponto em que estava.}
+    {\textbf{A1} (passo 1) Sem conta: CU-12.\par \textbf{E1} (passo 2) Credenciais inválidas: mensagem genérica.}
+\end{tela}\end{frame}
+
+% --- Kayque ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.4}{ESPECIFICAÇÃO · CU-10 · CU-11}{Os casos que dependem de sistemas externos}
+    {Frete e pagamento: o sistema pergunta, o serviço externo responde (Tabelas 13 e 14)}
+  \cucardL{25}{78}{198}{152}{Apoio}{CU-10 Calcular Frete}
+    {\textbf{Ator:} Serviço de Frete.\par \textbf{Pré-condição:} carrinho com itens e CEP informado.}
+    {1. O sistema envia CEP, peso e dimensões ao Serviço de Frete.\par 2. O Serviço de Frete devolve as opções de entrega.\par 3. O sistema exibe valor e prazo, para a escolha no CU-03.}
+    {\textbf{E1} (passo 1) CEP inválido: o sistema pede a correção.\par \textbf{E2} (passo 1) Serviço indisponível: a finalização não avança.}
+  \cucardL{231}{78}{198}{152}{Apoio}{CU-11 Processar Pagamento}
+    {\textbf{Ator:} Gateway de Pagamento.\par \textbf{Pré-condição:} pedido criado, com a forma de pagamento escolhida.}
+    {1. O sistema envia a cobrança, sem guardar dados de cartão.\par 2. O Gateway aprova o pagamento.\par 3. O sistema registra o resultado.\par 4. O pedido passa para pago e o estoque reservado é baixado.}
+    {\textbf{A1} (passo 2) Pix ou boleto: aguarda a confirmação.\par \textbf{E1} (passo 2) Recusado: volta para a finalização (CU-03).\par \textbf{E2} (passo 1) Gateway indisponível: pedido aguarda verificação.\par \textbf{E3} (passo 2) Prazo expirado: cancela e devolve o estoque.}
+\end{tela}\end{frame}
+
+% --- Kayque ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{2.4}{ESPECIFICAÇÃO · CU-12 · CU-13}{Cadastrar-se e avisar o cliente}
+    {Como o Visitante vira Cliente, e como o cliente fica sabendo do pedido (Tabelas 15 e 16)}
+  \cucardL{25}{78}{198}{152}{Principal}{CU-12 Cadastrar-se}
+    {\textbf{Ator:} Visitante.\par \textbf{Pré-condição:} nenhuma.}
+    {1. Informa nome, CPF, e-mail, telefone e senha.\par 2. O sistema valida os dados.\par 3. O sistema cria a conta de cliente e autentica o usuário.}
+    {\textbf{E1} (passo 2) CPF ou e-mail já cadastrado: sugere entrar na conta.\par \textbf{E2} (passo 2) Dados inválidos: mostra o erro junto aos campos.}
+  \cucardL{231}{78}{198}{152}{Apoio}{CU-13 Notificar Cliente por E-mail}
+    {\textbf{Ator:} Serviço de E-mail.\par \textbf{Pré-condição:} mudança de status registrada.}
+    {1. O sistema monta a mensagem com o número do pedido e o novo status.\par 2. O sistema envia a mensagem ao Serviço de E-mail.\par 3. O Serviço de E-mail entrega ao Cliente.\par 4. O sistema registra o envio.}
+    {\textbf{E1} (passo 2) Falha no envio: tenta de novo, sem desfazer a mudança de status.}
+\end{tela}\end{frame}
+
+% =============================================================================
+\section{Diagramas de Componentes}
+% =============================================================================
+
+% --- Luiz ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{3}{COMPONENTES}{A arquitetura em números}
+    {Uma aplicação web em camadas, mostrada em dois níveis: um diagrama geral e dois detalhes internos}
+  \tile{25}{80}{95}{80}{5}{Pacotes}{Frontend, Backend, Integrações, Dados e Serviços Externos}
+  \tile{128}{80}{95}{80}{16}{Componentes}{no diagrama geral}
+  \tile{231}{80}{95}{80}{15}{Interfaces}{fornecidas e requeridas}
+  \tileD{334}{80}{95}{80}{2}{Detalhes internos}{Frontend e Backend}
+  \faixa{170}{28}{Navy}{Adaptadores}
+    {Cada serviço externo tem um adaptador. O Backend conhece só a interface dele, então trocar de gateway, frete ou e-mail muda só o adaptador.}
+  \faixa{202}{26}{Destaque}{Por que dois detalhes}
+    {Só Frontend e Backend têm um nível interno que o geral não mostra; os demais são componentes simples ou de terceiros.}
+\end{tela}\end{frame}
+
+\slideDiagrama{3.1 --- Diagrama de Componentes: Visão Geral (Figura 2)}{CMP_Geral.pdf}
+\slideRegiao{3.1 --- Ampliação: Frontend, Backend e Dados}{CMP_Geral.pdf}{0 0 525 0}
+\slideRegiao{3.1 --- Ampliação: Integrações e Serviços Externos}{CMP_Geral.pdf}{735 50 0 150}
+
+% --- Luiz ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{3.1}{LEITURA DO DIAGRAMA}{Como ler o diagrama de componentes}
+    {Cada símbolo tem um significado; as cores só identificam os pacotes}
+  \linhasimb{80}{28}{componente.pdf}{Componente}{Módulo do sistema, com o ícone de componente no canto.}
+  \linhasimb{112}{28}{interface_fornecida.pdf}{Interface fornecida}{Pirulito: o serviço que o componente oferece.}
+  \linhasimb{144}{28}{interface_requerida.pdf}{Interface requerida}{Soquete: o serviço de que o componente precisa.}
+  \linhasimb{176}{24}{porta.pdf}{Porta}{Quadrado na borda: HTTPS da API e webhook do pagamento.}
+  \linhasimb{204}{24}{dependencia.pdf}{Dependência}{Seta tracejada entre pacotes. Cores: Frontend azul, Backend verde, Integrações amarelo, Externos lilás, Dados rosa.}
+\end{tela}\end{frame}
+
+% --- Luiz ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{3.1}{PERCURSO DE UM PEDIDO}{Finalizar Pedido atravessa todas as camadas}
+    {O mesmo CU-03, agora visto pelo diagrama de componentes}
+  \passo{25}{80}{404}{24}{1}{A Interface da Loja chama \texttt{IApi} pela porta HTTPS da API.}{FRONTEND}{PFront}{white}
+  \passo{25}{108}{404}{24}{2}{A API encaminha ao Pedidos, que usa \texttt{ICarrinho} e \texttt{IEstoque}.}{BACKEND}{PBack}{white}
+  \passo{25}{136}{404}{24}{3}{Pedidos usa \texttt{IFrete} e \texttt{IPagamento}; os adaptadores falam com os serviços externos.}{INTEGRAÇÕES}{PInt}{Texto}
+  \passo{25}{164}{404}{24}{4}{O gateway confirma Pix ou boleto por \texttt{IConfirmacao} (webhook); o adaptador avisa o Pedidos por \texttt{IPedidos}.}{EXTERNOS}{PExt}{white}
+  \passo{25}{192}{404}{24}{5}{Pedidos usa \texttt{INotificacao}, que envia o e-mail por \texttt{IEmail}; tudo é gravado por \texttt{IDados}.}{DADOS}{PDados}{white}
+\end{tela}\end{frame}
+
+% --- Luiz ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{3.2}{DECISÕES DE ARQUITETURA}{Seis decisões que dão forma à arquitetura}
+    {Por que os componentes estão organizados assim (Seção 3.2)}
+  \decisao{25}{80}{128}{72}{1}{Camadas}{CINCO PACOTES}{Dependências em um só sentido, da interface para os dados.}
+  \decisao{163}{80}{128}{72}{2}{API como entrada única}{PORTA HTTPS}{Segurança e controle de perfil em um lugar só.}
+  \decisao{301}{80}{128}{72}{3}{Adaptadores}{INTEGRAÇÕES}{Trocar de gateway, frete ou e-mail muda só o adaptador.}
+  \decisao{25}{158}{128}{72}{4}{Retorno por webhook}{ICONFIRMACAO}{O gateway avisa o adaptador, que repassa ao Pedidos por \texttt{IPedidos}.}
+  \decisao{163}{158}{128}{72}{5}{Repositórios}{IDADOS}{Os módulos não falam direto com o banco.}
+  \decisao{301}{158}{128}{72}{6}{Pacote e componente}{DOIS NÍVEIS}{Pacote no geral; componente no detalhe, para mostrar as portas.}
+\end{tela}\end{frame}
+
+% --- Luiz ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{3.3}{DICIONÁRIO DE COMPONENTES}{O que cada pacote fornece e requer}
+    {Os componentes do diagrama geral, agrupados por pacote (Tabelas 17 e 18)}
+  \cartao{25}{80}{128}{72}{PFront}{Frontend}
+    {Interface da Loja e Painel Administrativo: as telas. Requerem \texttt{IApi}.}
+  \cartao{163}{80}{128}{72}{PBack}{Backend}
+    {API (fornece \texttt{IApi}) e seis módulos, cada um com sua interface: Usuários, Catálogo, Carrinho, Pedidos, Estoque, Notificações.}
+  \cartao{301}{80}{128}{72}{PDados}{Dados}
+    {Banco de Dados: fornece \texttt{IDados}, usada pelos módulos via Repositórios.}
+  \cartao{25}{158}{198}{70}{PInt}{Integrações}
+    {Adaptador de Pagamento: fornece \texttt{IPagamento} e \texttt{IConfirmacao}; requer \texttt{IGateway} e \texttt{IPedidos}. Adaptadores de Frete e E-mail: fornecem \texttt{IFrete} e \texttt{IEmail}.}
+  \cartao{231}{158}{198}{70}{PExt}{Serviços Externos}
+    {Gateway de Pagamento, Serviço de Frete e Serviço de E-mail: sistemas de terceiros que fornecem \texttt{IGateway}, \texttt{IServicoFrete} e \texttt{IServicoEmail}.}
+\end{tela}\end{frame}
+
+% --- Luiz ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{3.3}{DEPENDÊNCIAS E MOTIVOS}{Por que cada dependência existe}
+    {Cada seta do diagrama tem um motivo registrado no documento (Tabela 19)}
+  \linha{78}{14}{PFront}{Telas $\rightarrow$ \texttt{IApi}}{Toda ação das telas chega por um único ponto de entrada.}{FRONTEND}{white}
+  \linha{94}{14}{PBack}{API $\rightarrow$ módulos}{Encaminha cada solicitação ao módulo responsável.}{BACKEND}{white}
+  \linha{110}{14}{PBack}{Catálogo $\rightarrow$ \texttt{IEstoque}}{Mostrar se o produto está disponível.}{BACKEND}{white}
+  \linha{126}{14}{PBack}{Carrinho $\rightarrow$ \texttt{ICatalogo}}{Obter preço e disponibilidade dos itens.}{BACKEND}{white}
+  \linha{142}{14}{PBack}{Pedidos $\rightarrow$ \texttt{ICarrinho}, \texttt{IEstoque}}{Ler os itens e reservar o estoque.}{BACKEND}{white}
+  \linha{158}{14}{PBack}{Pedidos $\rightarrow$ \texttt{INotificacao}}{Avisar o cliente a cada mudança de status.}{BACKEND}{white}
+  \linha{174}{14}{PInt}{Pedidos $\rightarrow$ \texttt{IFrete}, \texttt{IPagamento}}{Calcular o frete e cobrar o pagamento.}{INTEGRAÇÕES}{Texto}
+  \linha{190}{14}{PInt}{Notificações $\rightarrow$ \texttt{IEmail}}{Enviar a mensagem por e-mail.}{INTEGRAÇÕES}{Texto}
+  \linha{206}{14}{PDados}{Módulos $\rightarrow$ \texttt{IDados}}{Gravar e consultar, só pelos Repositórios.}{DADOS}{white}
+  \linha{222}{14}{PExt}{Gateway $\rightarrow$ \texttt{IConfirmacao}}{Avisar o adaptador quando o pagamento é confirmado.}{EXTERNOS}{white}
+\end{tela}\end{frame}
+
+% --- Yury ---
+\slideDiagrama{3.4 --- Detalhe Interno: Frontend (Figura 3)}{CMP_Frontend.pdf}
+
+% --- Yury ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{3.4}{DETALHE INTERNO · FRONTEND}{Telas independentes e um único ponto de saída}
+    {Cada tela atende casos de uso específicos (Tabela 20)}
+  \painel{25}{80}{150}{148}{COMUNICAÇÃO COM A API}{O único componente do Frontend que requer \texttt{IApi}}
+    {Cuida da sessão e das requisições HTTPS. As telas não chamam umas às outras; todas usam este componente.}
+  \cartao{185}{80}{244}{72}{PFront}{Interface da Loja}
+    {Catálogo e Busca (CU-01, 07) · Carrinho e Finalização (CU-02, 03) · Meus Pedidos (CU-04, 08) · Login e Cadastro (CU-09, 12)}
+  \cartao{185}{158}{244}{70}{PFront}{Painel Administrativo}
+    {Login do Administrador (CU-09) · Gestão de Produtos e Gestão de Estoque (CU-05) · Gestão de Pedidos (CU-06)}
+\end{tela}\end{frame}
+
+% --- Yury ---
+\slideDiagrama{3.5 --- Detalhe Interno: Backend (Figura 4)}{CMP_Backend.pdf}
+
+% --- Yury ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{3.5}{DETALHE INTERNO · BACKEND}{Três camadas e as mesmas portas do diagrama geral}
+    {O componente API do geral se abre em controladores e segurança (Tabela 21)}
+  \passo{25}{80}{250}{44}{1}{\textbf{Camada de API:} Controlador da Loja, Controlador Administrativo e Segurança e Perfis, que valida o perfil.}{API}{PBack}{white}
+  \passo{25}{130}{250}{44}{2}{\textbf{Módulos de negócio:} Catálogo usa \texttt{IEstoque}, Carrinho usa \texttt{ICatalogo}, Pedidos usa \texttt{ICarrinho}, \texttt{IEstoque} e \texttt{INotificacao}.}{MÓDULOS}{PBack}{white}
+  \passo{25}{180}{250}{44}{3}{\textbf{Acesso a dados:} os Repositórios, únicos que requerem \texttt{IDados}.}{DADOS}{PDados}{white}
+  \painel{285}{80}{144}{148}{PORTAS DA BORDA}{Iguais às do diagrama geral}
+    {Topo: duas \texttt{IApi}, uma por controlador.\par Base, saída: \texttt{IPagamento}, \texttt{IFrete}, \texttt{IEmail}, \texttt{IDados}.\par Base, entrada: \texttt{IPedidos}, do adaptador de pagamento.}
+\end{tela}\end{frame}
+
+% =============================================================================
+\section{Ferramenta e Apêndices}
+% =============================================================================
+
+% --- Yury ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{4}{FERRAMENTA}{Ferramenta, símbolos e o que foi entregue}
+    {Diagramas no draw.io, em notação UML 2.5 (Capítulo 4)}
+  \cartao{25}{80}{128}{80}{Navy}{draw.io}{Os quatro diagramas foram feitos na ferramenta, com os símbolos da UML.}
+  \cartao{163}{80}{128}{80}{Navy}{Lista de símbolos}{Tabelas 22 e 23: cada símbolo desenhado na própria ferramenta, com o significado.}
+  \cartao{301}{80}{128}{80}{Navy}{Cores}{Só agrupam elementos; os diagramas continuam legíveis em preto e branco.}
+  \faixa{170}{28}{Destaque}{Documento de projeto}
+    {PDF com visão geral, 13 casos de uso especificados, diagrama geral, dois detalhes internos e dicionário de componentes.}
+  \faixa{202}{26}{Navy}{Arquivos-fonte}
+    {Os quatro diagramas em XML do draw.io, editáveis, junto do PDF no arquivo de entrega.}
+\end{tela}\end{frame}
+
+% --- Yury ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{A · B}{APÊNDICES}{Dos requisitos aos componentes}
+    {Os requisitos do Apêndice A dão origem aos casos de uso, que são atendidos pelos componentes}
+  \tile{25}{80}{95}{72}{12}{Requisitos funcionais}{catálogo, carrinho, pedidos, admin}
+  \tile{128}{80}{95}{72}{6}{Não funcionais}{HTTPS, perfil, responsivo}
+  \tile{231}{80}{95}{72}{6}{Regras de negócio}{estoque, cancelamento, avisos}
+  \tileD{334}{80}{95}{72}{B}{Glossário}{termos técnicos explicados}
+  \node[anchor=north west, inner sep=0pt, text=Navy] at \pto{25}{162} {\fontsize{7.6pt}{9pt}\selectfont\bfseries Rastreabilidade de um requisito:};
+  \chev{25}{176}{104}{40}{Claro}{Navy}{RF-06}{Finalizar pedido}
+  \chev{125}{176}{104}{40}{Claro}{Navy}{CU-03}{Finalizar Pedido}
+  \chev{225}{176}{104}{40}{PFront}{white}{Carrinho e Finalização}{tela do Frontend}
+  \chev{325}{176}{104}{40}{PBack}{white}{Pedidos}{módulo do Backend}
+\end{tela}\end{frame}
+
+% --- Yury ---
+\begin{frame}[plain]\begin{tela}
+  \fundo{CONCLUSÃO}{COMO OS MODELOS SE CONECTAM}{Dois diagramas que contam a mesma história}
+    {O que o sistema faz, para quem, e como as partes conversam}
+  \painel{25}{80}{160}{148}{SÍNTESE}{Cada caso de uso tem onde acontecer na arquitetura}
+    {Os atores secundários do diagrama de casos de uso viram adaptadores; cada dependência entre componentes tem um motivo registrado.}
+  \cartao{195}{80}{234}{46}{Principal}{Casos de uso}{O que o sistema faz e para quem, com as regras de cada fluxo nas 13 tabelas.}
+  \cartao{195}{131}{234}{46}{PBack}{Componentes: geral}{Como o sistema é dividido em pacotes e como as partes se ligam por interfaces.}
+  \cartao{195}{182}{234}{46}{PFront}{Componentes: detalhes}{O interior do Frontend e do Backend, com as mesmas interfaces na borda.}
+\end{tela}\end{frame}
+
+% =============================================================================
+\setLayout{blank}
+\setBGColor{UFGBlue}
+\begin{frame}[plain,noframenumbering]{}
+    \fonteTela
+    \centering
+    \vspace{0.6cm}
+    {\Huge \textbf{Obrigado!}}\par\vspace{0.4cm}
+    {\Large Site de Loja de Eletrônicos (E-commerce)}\par\vspace{0.2cm}
+    {\normalsize Modelagem de Software -- APS2 | UFG / INF (2026/2)}\par\vspace{1.5cm}
+    {\large \textbf{Dúvidas e Discussão}}\par\vspace{0.5cm}
+    \includegraphics[width=0.42\textwidth]{lib/logos/ES-INF-full-white.png}
+\end{frame}
+
+\end{document}
