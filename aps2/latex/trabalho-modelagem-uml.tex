@@ -41,7 +41,7 @@
 \usepackage{booktabs}
 \usepackage{etoolbox}
 
-% --- Figuras, quadros e imagens ---
+% --- Figuras, tabelas e imagens ---
 \usepackage{graphicx}
 \graphicspath{{../assets/}{assets/}}
 \usepackage{float}
@@ -92,15 +92,15 @@
   skip=6pt
 }
 \captionsetup[figure]{name=Figura, labelsep=colon}
-\captionsetup[table]{name=Quadro, labelsep=colon}
+\captionsetup[table]{name=Tabela, labelsep=colon}
 
-% "Fonte:" abaixo de figuras e quadros
+% "Fonte:" abaixo de figuras e tabelas
 \newcommand{\fonte}[1]{%
   \par\vspace{2pt}%
   {\footnotesize\centering\textbf{Fonte:} #1\par}%
 }
 
-% Espaçamento simples dentro de figuras e quadros (exigência ABNT)
+% Espaçamento simples dentro de figuras e tabelas (exigência ABNT)
 \AtBeginEnvironment{figure}{\singlespace}
 \AtBeginEnvironment{table}{\singlespace}
 \AtBeginEnvironment{xltabular}{\singlespace}
@@ -293,37 +293,29 @@ são explicados no Apêndice~\ref{sec:termos}.
 % =========================================================================
 \section{Diagrama de Casos de Uso}\label{sec:uc}
 
-Os casos de uso foram derivados dos requisitos do Apêndice~\ref{sec:apendice}. Os que um ator aciona diretamente são o CU\nobreakdash-01 a CU\nobreakdash-06 e o CU\nobreakdash-12. Os demais (CU\nobreakdash-07 a CU\nobreakdash-11 e CU\nobreakdash-13) são casos de apoio: partes reutilizadas ou opcionais dos primeiros, ligadas a eles por \texttt{<<include>>} ou \texttt{<<extend>>}. Este capítulo apresenta os atores, os relacionamentos e o diagrama, explica as decisões de modelagem e, por fim, especifica cada caso de uso em uma tabela.
-
-\subsection{Atores}
-
-\begin{itemize}
-\tightlist
-\item \textbf{Visitante} (principal): navega, filtra e busca produtos,
-  sem autenticação.
-\item \textbf{Cliente} (principal): visitante autenticado; finaliza e
-  consulta pedidos. Herda do Visitante (generalização).
-\item \textbf{Administrador} (principal): gerencia produtos, estoque e
-  pedidos.
-\item \textbf{Gateway de Pagamento} (secundário, sistema externo):
-  autoriza e estorna pagamentos.
-\item \textbf{Serviço de Frete} (secundário, sistema externo): calcula
-  valor e prazo de entrega.
-\item \textbf{Serviço de E-mail} (secundário, sistema externo): envia as
-  mensagens de status do pedido.
-\end{itemize}
-
-\subsection{Relacionamentos}
-
-\begin{itemize}
-\setlength{\itemsep}{0.4em}
-\item \textbf{Associação:} liga cada ator aos casos de uso em que ele participa.
-\item \textbf{Generalização:} o Cliente herda do Visitante e pode fazer tudo o que o visitante faz.
-\item \textbf{\texttt{<<include>>}:} o caso de uso de origem sempre executa o caso de destino. É um passo obrigatório e reutilizável.
-\item \textbf{\texttt{<<extend>>}:} o caso de uso de origem acrescenta um fluxo opcional ao caso de destino, só quando uma condição acontece. A condição aparece em uma nota, ligada à seta por uma linha tracejada.
-\end{itemize}
+Os casos de uso foram derivados dos requisitos do Apêndice~\ref{sec:apendice}. Os que um ator aciona diretamente são o CU\nobreakdash-01 a CU\nobreakdash-06 e o CU\nobreakdash-12. Os demais (CU\nobreakdash-07 a CU\nobreakdash-11 e CU\nobreakdash-13) são casos de apoio: partes reutilizadas ou opcionais dos primeiros, ligadas a eles por \texttt{<<include>>} ou \texttt{<<extend>>}. Este capítulo apresenta o diagrama e seus atores, explica as decisões de modelagem, descreve os relacionamentos e, por fim, especifica cada caso de uso em uma tabela.
 
 \subsection{Diagrama}
+
+O diagrama tem seis atores: três principais, que são os usuários do sistema, e três secundários, que são sistemas externos.
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.05}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}m{3.4cm}|>{\raggedright\arraybackslash}m{3.6cm}|>{\raggedright\arraybackslash}m{7.4cm}}
+\rowcolor{white}\caption{Atores do sistema}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Ator} & \textbf{Tipo} & \textbf{O que faz no sistema}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Ator} & \textbf{Tipo} & \textbf{O que faz no sistema}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Visitante & Principal & Navega, filtra e busca produtos, sem autenticação.\\ \hline
+Cliente & Principal & Visitante autenticado: finaliza e consulta pedidos. Herda do Visitante (generalização).\\ \hline
+Administrador & Principal & Gerencia produtos, estoque e pedidos.\\ \hline
+Gateway de Pagamento & Secundário (sistema externo) & Autoriza e estorna pagamentos.\\ \hline
+Serviço de Frete & Secundário (sistema externo) & Calcula valor e prazo de entrega.\\ \hline
+Serviço de E-mail & Secundário (sistema externo) & Envia as mensagens de status do pedido.\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
 
 \begin{figure}[H]
 \centering
@@ -332,29 +324,9 @@ Os casos de uso foram derivados dos requisitos do Apêndice~\ref{sec:apendice}. 
 \fonte{elaborado pelos autores no draw.io (2026).}
 \end{figure}
 
-O quadro a seguir lista cada relacionamento \texttt{<<include>>} e \texttt{<<extend>>}, na direção da seta do diagrama acima.
+No diagrama, os casos de uso em \textbf{azul} são os principais, acionados diretamente por um ator (CU\nobreakdash-01 a CU\nobreakdash-06 e CU\nobreakdash-12), e os em \textbf{amarelo} são os de apoio, reutilizados ou opcionais (CU\nobreakdash-07 a CU\nobreakdash-11 e CU\nobreakdash-13). A cor só agrupa; o significado está nas formas e nas linhas.
 
-{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}\small
-\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{2.4cm}|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}p{3.7cm}|>{\raggedright\arraybackslash}X}
-\rowcolor{white}\caption{Relacionamentos \texttt{<<include>>} e \texttt{<<extend>>} do diagrama}\\
-\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
-\rowcolor{ghbg}\textbf{Tipo} & \textbf{Origem da seta} & \textbf{Destino da seta} & \textbf{Quando ocorre}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
-\endfirsthead
-\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
-\rowcolor{ghbg}\textbf{Tipo} & \textbf{Origem da seta} & \textbf{Destino da seta} & \textbf{Quando ocorre}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
-\endhead
-\endlastfoot
-\texttt{<<include>>} & CU\nobreakdash-03 Finalizar Pedido & CU\nobreakdash-09 Autenticar Usuário & Só o cliente autenticado finaliza um pedido.\\ \hline
-\texttt{<<include>>} & CU\nobreakdash-03 Finalizar Pedido & CU\nobreakdash-10 Calcular Frete & Sem o frete não há valor total do pedido.\\ \hline
-\texttt{<<include>>} & CU\nobreakdash-03 Finalizar Pedido & CU\nobreakdash-11 Processar Pagamento & O pedido só avança com o pagamento.\\ \hline
-\texttt{<<include>>} & CU\nobreakdash-04 Consultar Pedidos & CU\nobreakdash-09 Autenticar Usuário & Cada cliente só vê os próprios pedidos.\\ \hline
-\texttt{<<include>>} & CU\nobreakdash-05 Gerenciar Produtos e Estoque & CU\nobreakdash-09 Autenticar Usuário & A área administrativa é restrita.\\ \hline
-\texttt{<<include>>} & CU\nobreakdash-06 Gerenciar Pedidos & CU\nobreakdash-09 Autenticar Usuário & A área administrativa é restrita.\\ \hline
-\texttt{<<include>>} & CU\nobreakdash-06 Gerenciar Pedidos & CU\nobreakdash-13 Notificar Cliente por E-mail & O cliente é avisado a cada mudança de status.\\ \hline
-\texttt{<<include>>} & CU\nobreakdash-08 Cancelar Pedido & CU\nobreakdash-13 Notificar Cliente por E-mail & O cliente é avisado do cancelamento.\\ \hline
-\texttt{<<extend>>} & CU\nobreakdash-07 Filtrar / Buscar Produtos & CU\nobreakdash-01 Navegar no Catálogo & Quando o visitante aplica um filtro ou faz uma busca.\\ \hline
-\texttt{<<extend>>} & CU\nobreakdash-08 Cancelar Pedido & CU\nobreakdash-04 Consultar Pedidos & Quando o cliente decide cancelar, e só se o pedido ainda não foi enviado.\\ \arrayrulecolor{black}\bottomrule
-\end{xltabular}}
+No diagrama, o retângulo é a fronteira do sistema. Os atores principais ficam à esquerda, e os secundários, que são sistemas externos, à direita. As linhas contínuas ligam cada ator aos casos de uso em que ele participa.
 
 \subsection{Decisões de Modelagem}
 
@@ -368,7 +340,54 @@ O quadro a seguir lista cada relacionamento \texttt{<<include>>} e \texttt{<<ext
 \item \textbf{Cadastrar-se é um caso próprio do Visitante:} é a forma de virar cliente, e não uma variação do login.
 \end{itemize}
 
-\Needspace{22\baselineskip}
+\subsection{Relacionamentos}
+
+A tabela a seguir explica os quatro tipos de relacionamento usados no diagrama.
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.05}\small\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}m{2.7cm}|>{\centering\arraybackslash}m{3.0cm}|>{\raggedright\arraybackslash}m{5.4cm}|>{\raggedright\arraybackslash}m{3.0cm}}
+\rowcolor{white}\caption{Relacionamentos do diagrama de casos de uso}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Relacionamento} & \textbf{Símbolo} & \textbf{Como funciona} & \textbf{Exemplo}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Relacionamento} & \textbf{Símbolo} & \textbf{Como funciona} & \textbf{Exemplo}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+Associação & \includegraphics[scale=0.5]{../assets/simbolos/associacao.pdf} & Liga cada ator aos casos de uso em que ele participa. & Visitante e CU\nobreakdash-01\\ \hline
+Generalização & \includegraphics[scale=0.5]{../assets/simbolos/generalizacao.pdf} & O Cliente herda do Visitante e pode fazer tudo o que o visitante faz. & Cliente $\to$ Visitante\\ \hline
+\texttt{<<include>>} & \includegraphics[scale=0.5]{../assets/simbolos/include.pdf} & O caso de origem sempre executa o de destino: passo obrigatório e reutilizável. & CU\nobreakdash-03 inclui CU\nobreakdash-09 Autenticar Usuário\\ \hline
+\texttt{<<extend>>} & \includegraphics[scale=0.5]{../assets/simbolos/extend.pdf} & Fluxo opcional que o caso de origem acrescenta ao de destino, só quando uma condição acontece. A condição fica em uma nota ligada à seta. & CU\nobreakdash-07 estende CU\nobreakdash-01, se há filtro ou busca\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{260pt}
+A tabela seguinte lista cada relacionamento \texttt{<<include>>} e \texttt{<<extend>>} do diagrama, na direção da seta. O \texttt{<<include>>} é um passo obrigatório; o \texttt{<<extend>>} é um fluxo opcional, que só entra quando a condição acontece.
+
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}\small
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.4cm}|>{\raggedright\arraybackslash}p{4.4cm}|>{\raggedright\arraybackslash}X}
+\rowcolor{white}\caption{Relacionamentos \texttt{<<include>>} e \texttt{<<extend>>} do diagrama}\\
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Origem da seta} & \textbf{Destino da seta} & \textbf{Quando ocorre}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endfirsthead
+\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
+\rowcolor{ghbg}\textbf{Origem da seta} & \textbf{Destino da seta} & \textbf{Quando ocorre}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
+\endhead
+\endlastfoot
+\rowcolor[gray]{0.93}\multicolumn{3}{l}{\texttt{<<include>>} \textit{(obrigatório)}}\\ \hline
+CU\nobreakdash-03 Finalizar Pedido & CU\nobreakdash-09 Autenticar Usuário & Só o cliente autenticado finaliza um pedido.\\ \hline
+CU\nobreakdash-03 Finalizar Pedido & CU\nobreakdash-10 Calcular Frete & Sem o frete não há valor total do pedido.\\ \hline
+CU\nobreakdash-03 Finalizar Pedido & CU\nobreakdash-11 Processar Pagamento & O pedido só avança com o pagamento.\\ \hline
+CU\nobreakdash-04 Consultar Pedidos & CU\nobreakdash-09 Autenticar Usuário & Cada cliente só vê os próprios pedidos.\\ \hline
+CU\nobreakdash-05 Gerenciar Produtos e Estoque & CU\nobreakdash-09 Autenticar Usuário & A área administrativa é restrita.\\ \hline
+CU\nobreakdash-06 Gerenciar Pedidos & CU\nobreakdash-09 Autenticar Usuário & A área administrativa é restrita.\\ \hline
+CU\nobreakdash-06 Gerenciar Pedidos & CU\nobreakdash-13 Notificar Cliente por E-mail & O cliente é avisado a cada mudança de status.\\ \hline
+CU\nobreakdash-08 Cancelar Pedido & CU\nobreakdash-13 Notificar Cliente por E-mail & O cliente é avisado do cancelamento.\\ \hline
+\rowcolor[gray]{0.93}\multicolumn{3}{l}{\texttt{<<extend>>} \textit{(opcional)}}\\ \hline
+CU\nobreakdash-07 Filtrar / Buscar Produtos & CU\nobreakdash-01 Navegar no Catálogo & Quando o visitante aplica um filtro ou faz uma busca.\\ \hline
+CU\nobreakdash-08 Cancelar Pedido & CU\nobreakdash-04 Consultar Pedidos & Quando o cliente decide cancelar, e só se o pedido ainda não foi enviado.\\ \arrayrulecolor{black}\bottomrule
+\end{xltabular}}
+
+\Needspace{6\baselineskip}
 \subsection{Especificação Textual dos Casos de Uso}
 
 \Needspace{200pt}
@@ -634,21 +653,6 @@ Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,lab
 % =========================================================================
 \section{Diagramas de Componentes}\label{sec:cmp}
 
-A arquitetura é apresentada em dois níveis: um diagrama \textbf{geral},
-com todos os componentes do sistema, e dois diagramas \textbf{micro},
-que mostram os componentes internos do \emph{Frontend} e do
-\emph{Backend}. Esses dois foram escolhidos porque têm um nível
-interno que o diagrama geral não mostra: telas e cliente da API no Frontend;
-controladores, segurança, camadas e repositórios no Backend. Os demais pacotes
-não precisam de um micro: os adaptadores de Integrações e o Banco de Dados são
-componentes simples, sem partes internas projetadas, e os Serviços Externos
-são sistemas de terceiros. No diagrama geral, o Frontend e o
-Backend aparecem como pacotes, pois agrupam componentes. Nos micros, são
-desenhados como componentes, para mostrar as interfaces e as portas da borda
-de cada um.
-
-\subsection{Visão Geral}
-
 O sistema é uma aplicação web em camadas, organizada nos pacotes
 \emph{Frontend}, \emph{Backend}, \emph{Integrações}, \emph{Dados} e
 \emph{Serviços Externos}. Os serviços externos (gateway de pagamento,
@@ -659,6 +663,8 @@ serviço. O Backend conhece apenas a interface do adaptador, então trocar de
 gateway, de frete ou de e-mail muda só o adaptador e não altera o restante do
 sistema.
 
+A arquitetura é apresentada em dois níveis: um diagrama \textbf{geral}, com todos os componentes do sistema, e dois diagramas \textbf{micro}, que mostram os componentes internos do \emph{Frontend} e do \emph{Backend}.
+
 \subsection{Diagrama}
 
 \begin{figure}[H]
@@ -668,7 +674,20 @@ sistema.
 \fonte{elaborado pelos autores no draw.io (2026).}
 \end{figure}
 
-A figura mostra os cinco pacotes e como os componentes se ligam por interfaces. As setas tracejadas entre os pacotes indicam dependência: o Frontend depende do Backend, o Backend depende das Integrações e do pacote Dados, e as Integrações dependem dos Serviços Externos. Os módulos usam o banco de dados por meio dos Repositórios (descritos na seção~\ref{sec:backend-detalhe}); por isso a dependência de \texttt{IDados} aparece no nível do pacote Backend, e não em cada módulo.
+Cada pacote tem uma cor: \textbf{azul} para o Frontend, \textbf{verde} para o Backend, \textbf{amarelo} para as Integrações, \textbf{lilás} para os Serviços Externos e \textbf{rosa} para os Dados. Nos diagramas de detalhe, as camadas internas usam tons mais claros do azul (Frontend) e do verde (Backend). A cor só agrupa; o significado está nas formas e nas linhas. A figura mostra os cinco pacotes e como os componentes se ligam por interfaces. As setas tracejadas entre os pacotes indicam dependência: o Frontend depende do Backend, o Backend depende das Integrações e do pacote Dados, e as Integrações dependem dos Serviços Externos. Os módulos usam o banco de dados por meio dos Repositórios (descritos na seção~\ref{sec:backend-detalhe}); por isso a dependência de \texttt{IDados} aparece no nível do pacote Backend, e não em cada módulo.
+
+\subsection{Decisões de Arquitetura}
+
+\begin{itemize}
+\setlength{\itemsep}{0.4em}
+\item \textbf{Arquitetura em camadas, com cinco pacotes:} Frontend, Backend, Integrações, Dados e Serviços Externos. Cada pacote tem uma responsabilidade, e as dependências seguem em um só sentido, da interface para os dados.
+\item \textbf{Adaptadores isolam os serviços externos:} gateway de pagamento, serviço de frete e serviço de e-mail têm, cada um, a sua forma de uso. O Backend conhece só a interface do adaptador, então trocar de serviço muda apenas o adaptador.
+\item \textbf{A API é o único ponto de entrada:} toda solicitação do Frontend passa por ela, pela porta HTTPS. Assim, segurança e controle de perfil ficam em um lugar só.
+\item \textbf{O retorno do pagamento entra por uma porta de \emph{webhook}:} o gateway chama \texttt{IConfirmacao} no adaptador de pagamento, e o adaptador repassa o aviso ao \emph{Pedidos} por \texttt{IPedidos}, que marca o pedido como pago.
+\item \textbf{O acesso ao banco passa pelos Repositórios:} os módulos não falam direto com o banco; usam \texttt{IDados}. Se o banco mudar, só os Repositórios mudam.
+\item \textbf{Só o Frontend e o Backend têm detalhe interno:} têm um nível que o diagrama geral não mostra (telas e comunicação com a API; controladores, segurança, camadas e repositórios). Integrações e Dados são componentes simples, e os Serviços Externos são sistemas de terceiros.
+\item \textbf{Pacote no geral, componente no detalhe:} no diagrama geral, Frontend e Backend agrupam componentes (pacotes); nos detalhes, são desenhados como componentes, para mostrar as interfaces e as portas da borda de cada um.
+\end{itemize}
 
 \subsection{Dicionário de Componentes}
 
@@ -700,7 +719,7 @@ Gateway de Pagamento, Serviço de Frete, Serviço de E-mail (externos) & Serviç
 \end{xltabular}}
 }
 
-\paragraph{Interfaces do sistema.} O quadro abaixo explica o que cada interface representa. O nome começa com a letra I (de \emph{interface}).
+\paragraph{Interfaces do sistema.} A tabela abaixo explica o que cada interface representa. O nome começa com a letra I (de \emph{interface}).
 
 {\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
 \begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X}
@@ -735,11 +754,9 @@ pedido coordena todos eles. O
 \emph{Catálogo} consulta \emph{Estoque} para exibir a disponibilidade, e o
 \emph{Carrinho} obtém preço e disponibilidade pelo \emph{Catálogo}.
 Nenhum módulo de negócio acessa serviço externo diretamente, apenas
-pelos adaptadores. Há duas \textbf{portas}: a porta HTTPS da \emph{API}
-(entrada pública) e a porta de \emph{webhook} do \emph{Adaptador de
-Pagamento} (confirmação de Pix e boleto). Por essa porta, o gateway chama a interface \texttt{IConfirmacao} do adaptador para avisar que o pagamento foi confirmado, e o adaptador repassa o aviso ao \emph{Pedidos} pela interface \texttt{IPedidos}, que então marca o pedido como pago.
+pelos adaptadores.
 
-\paragraph{Por que cada dependência existe.} O quadro a seguir resume, para cada componente, a interface que ele requer e o motivo.
+\paragraph{Por que cada dependência existe.} A tabela a seguir resume, para cada componente, a interface que ele requer e o motivo.
 
 {\small
 {\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
@@ -847,17 +864,17 @@ confirmação do pagamento ao \emph{Pedidos}, como no diagrama geral.
 Controlador da Loja & Recebe as requisições do cliente e do visitante; fornece \texttt{IApi}.\\ \hline
 Controlador Administrativo & Recebe as requisições do administrador; fornece \texttt{IApi}.\\ \hline
 Segurança e Perfis (RBAC) & Valida a sessão e o perfil antes de cada operação; é usado pelos dois controladores.\\ \hline
-Usuários, Catálogo, Estoque, Carrinho, Pedidos, Notificações & Módulos de negócio descritos no Quadro~\ref{tab:dicionario}.\\ \hline
+Usuários, Catálogo, Estoque, Carrinho, Pedidos, Notificações & Módulos de negócio descritos na Tabela~\ref{tab:dicionario}.\\ \hline
 Repositórios & Gravam e consultam os dados dos módulos; requerem \texttt{IDados}.\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
 
 % =========================================================================
 \section{Ferramenta de Modelagem e Lista de Símbolos}\label{sec:simbolos}
 
-Os diagramas foram elaborados no \textbf{draw.io} (diagrams.net).
+Os diagramas foram elaborados no \textbf{draw.io} (diagrams.net). As tabelas a seguir mostram os símbolos usados, desenhados na própria ferramenta.
 
-{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\footnotesize\rowcolors{2}{ghbg}{white}
-\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.2cm}|>{\raggedright\arraybackslash}p{5.6cm}|>{\raggedright\arraybackslash}X}
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\footnotesize\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}m{3.8cm}|>{\centering\arraybackslash}m{5.2cm}|>{\raggedright\arraybackslash}m{5.2cm}}
 \rowcolor{white}\caption{Símbolos do diagrama de casos de uso (ferramenta: draw.io)}\\
 \arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
 \rowcolor{ghbg}\textbf{Elemento} & \textbf{Símbolo no draw.io} & \textbf{Significado}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
@@ -866,18 +883,19 @@ Os diagramas foram elaborados no \textbf{draw.io} (diagrams.net).
 \rowcolor{ghbg}\textbf{Elemento} & \textbf{Símbolo no draw.io} & \textbf{Significado}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
 \endhead
 \endlastfoot
-Ator principal & Boneco com o nome abaixo & Usuário que usa o sistema diretamente.\\ \hline
-Ator secundário & Boneco com o nome e o estereótipo \texttt{<<sistema>>} & Sistema externo com o qual o sistema se comunica (gateway, frete, e-mail).\\ \hline
-Caso de uso & Elipse com o nome dentro & Funcionalidade oferecida ao ator.\\ \hline
-Fronteira do sistema & Retângulo com o nome do sistema no topo & Delimita o escopo modelado.\\ \hline
-Associação & Linha contínua & Comunicação entre ator e caso de uso.\\ \hline
-Generalização & Linha com ponta de triângulo vazada & Herança entre atores (Cliente $\to$ Visitante).\\ \hline
-\texttt{<<include>>} & Seta tracejada com estereótipo & Passo obrigatório incluído em outro caso de uso.\\ \hline
-\texttt{<<extend>>} & Seta tracejada com estereótipo, ligada por linha tracejada a uma nota com a condição & Fluxo opcional que estende outro caso de uso, só quando a condição é verdadeira.\\ \arrayrulecolor{black}\bottomrule
+Ator principal & \includegraphics[scale=0.8]{../assets/simbolos/ator.pdf} & Usuário que usa o sistema diretamente.\\ \hline
+Ator secundário & \includegraphics[scale=0.8]{../assets/simbolos/ator_secundario.pdf} & Sistema externo com o qual o sistema se comunica (gateway, frete, e-mail).\\ \hline
+Caso de uso & \includegraphics[scale=0.8]{../assets/simbolos/caso_uso.pdf} & Funcionalidade oferecida ao ator, com o nome dentro da elipse.\\ \hline
+Fronteira do sistema & \includegraphics[scale=0.8]{../assets/simbolos/fronteira.pdf} & Delimita o escopo modelado, com o nome do sistema no topo.\\ \hline
+Associação & \includegraphics[scale=0.8]{../assets/simbolos/associacao.pdf} & Comunicação entre ator e caso de uso.\\ \hline
+Generalização & \includegraphics[scale=0.8]{../assets/simbolos/generalizacao.pdf} & Herança entre atores (Cliente $\to$ Visitante).\\ \hline
+\texttt{<<include>>} & \includegraphics[scale=0.8]{../assets/simbolos/include.pdf} & Passo obrigatório incluído em outro caso de uso.\\ \hline
+\texttt{<<extend>>} & \includegraphics[scale=0.8]{../assets/simbolos/extend.pdf} & Fluxo opcional que estende outro caso de uso, só quando a condição da nota é verdadeira.\\ \hline
+Nota & \includegraphics[scale=0.8]{../assets/simbolos/nota.pdf} & Texto de apoio, ligado por linha tracejada ao elemento a que se refere.\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
 
-{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\footnotesize\rowcolors{2}{ghbg}{white}
-\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.2cm}|>{\raggedright\arraybackslash}p{5.6cm}|>{\raggedright\arraybackslash}X}
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.1}\footnotesize\rowcolors{2}{ghbg}{white}
+\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}m{3.8cm}|>{\centering\arraybackslash}m{5.2cm}|>{\raggedright\arraybackslash}m{5.2cm}}
 \rowcolor{white}\caption{Símbolos do diagrama de componentes (ferramenta: draw.io)}\\
 \arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
 \rowcolor{ghbg}\textbf{Elemento} & \textbf{Símbolo no draw.io} & \textbf{Significado}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
@@ -886,38 +904,19 @@ Generalização & Linha com ponta de triângulo vazada & Herança entre atores (
 \rowcolor{ghbg}\textbf{Elemento} & \textbf{Símbolo no draw.io} & \textbf{Significado}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
 \endhead
 \endlastfoot
-Componente & Retângulo com o ícone de componente no canto superior direito & Módulo lógico do sistema.\\ \hline
-Pacote & Retângulo em forma de pasta, com o nome na aba & Agrupa componentes (Frontend, Backend\ldots).\\ \hline
-Interface fornecida & Círculo (``pirulito'') ligado ao componente & Serviço que o componente oferece.\\ \hline
-Interface requerida & Meio-círculo (``soquete'') voltado ao círculo & Serviço de que o componente precisa.\\ \hline
-Dependência & Seta tracejada aberta & Um elemento depende de outro.\\ \hline
-Porta & Pequeno quadrado na borda do componente & Ponto de interação do componente com o ambiente externo.\\ \hline
-Banco de dados & Cilindro & Local onde os dados são guardados.\\ \arrayrulecolor{black}\bottomrule
+Componente & \includegraphics[scale=0.8]{../assets/simbolos/componente.pdf} & Módulo lógico do sistema, com o ícone de componente no canto.\\ \hline
+Pacote & \includegraphics[scale=0.8]{../assets/simbolos/pacote.pdf} & Agrupa componentes (Frontend, Backend\ldots), com o nome na aba.\\ \hline
+Interface fornecida & \includegraphics[scale=0.8]{../assets/simbolos/interface_fornecida.pdf} & Círculo (``pirulito'') ligado ao componente: serviço que ele oferece.\\ \hline
+Interface requerida & \includegraphics[scale=0.8]{../assets/simbolos/interface_requerida.pdf} & Meio-círculo (``soquete''): serviço de que o componente precisa.\\ \hline
+Dependência & \includegraphics[scale=0.8]{../assets/simbolos/dependencia.pdf} & Seta tracejada aberta: um elemento depende de outro.\\ \hline
+Porta & \includegraphics[scale=0.8]{../assets/simbolos/porta.pdf} & Pequeno quadrado na borda: ponto de interação do componente com o ambiente externo.\\ \hline
+Banco de dados & \includegraphics[scale=0.8]{../assets/simbolos/banco_dados.pdf} & Cilindro: local onde os dados são guardados.\\ \hline
+Nota & \includegraphics[scale=0.8]{../assets/simbolos/nota.pdf} & Texto de apoio, ligado por linha tracejada ao elemento a que se refere.\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
-
 
 % =========================================================================
 \vspace{0.6em}
-\noindent As cores dos diagramas são leves e servem só para agrupar elementos, sem significado em UML. O significado está nas formas e nas linhas, então os diagramas continuam legíveis em preto e branco.
-
-{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\footnotesize\rowcolors{2}{ghbg}{white}
-\begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{4.2cm}|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}X}
-\rowcolor{white}\caption{Cores usadas nos diagramas}\\
-\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
-\rowcolor{ghbg}\textbf{Onde} & \textbf{Cor} & \textbf{O que agrupa}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
-\endfirsthead
-\arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
-\rowcolor{ghbg}\textbf{Onde} & \textbf{Cor} & \textbf{O que agrupa}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
-\endhead
-\endlastfoot
-Casos de uso & Azul & Casos de uso principais, acionados diretamente por um ator (CU-01 a CU-06 e CU-12).\\ \hline
-Casos de uso & Amarelo & Casos de uso de apoio, reutilizados ou opcionais (CU-07 a CU-11 e CU-13).\\ \hline
-Componentes & Azul & Pacote Frontend (telas e comunicação com a API).\\ \hline
-Componentes & Verde & Pacote Backend (API, módulos de negócio e acesso a dados).\\ \hline
-Componentes & Amarelo & Pacote Integrações (adaptadores dos serviços externos).\\ \hline
-Componentes & Lilás & Pacote Serviços Externos (sistemas de terceiros).\\ \hline
-Componentes & Salmão & Pacote Dados (banco de dados).\\ \arrayrulecolor{black}\bottomrule
-\end{xltabular}}
+\noindent \noindent As cores dos diagramas servem só para agrupar elementos, sem significado em UML. O significado está nas formas e nas linhas, então os diagramas continuam legíveis em preto e branco.
 
 \section*{REFERÊNCIAS}
 \addcontentsline{toc}{section}{REFERÊNCIAS}
@@ -947,7 +946,7 @@ Rio de Janeiro: ABNT, 2011.
 \Needspace{10\baselineskip}
 \subsection*{Requisitos Funcionais}
 
-{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.05}\rowcolors{2}{ghbg}{white}
 \begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}X}
 \rowcolor{white}\caption{Requisitos funcionais}\\
 \arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
@@ -974,7 +973,7 @@ RF-12 & Consultar pedidos e atualizar o status (administrador).\\ \arrayrulecolo
 \Needspace{10\baselineskip}
 \subsection*{Requisitos Não Funcionais}
 
-{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.05}\rowcolors{2}{ghbg}{white}
 \begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}X}
 \rowcolor{white}\caption{Requisitos não funcionais}\\
 \arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
@@ -995,7 +994,7 @@ RNF-06 & Arquitetura modular, com interfaces bem definidas, para trocar o gatewa
 \Needspace{10\baselineskip}
 \subsection*{Regras de Negócio}
 
-{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.15}\rowcolors{2}{ghbg}{white}
+{\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.05}\rowcolors{2}{ghbg}{white}
 \begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}X}
 \rowcolor{white}\caption{Regras de negócio}\\
 \arrayrulecolor{black}\toprule\arrayrulecolor{ghlight}
@@ -1017,7 +1016,7 @@ RN-06 & Falha ao enviar e-mail não desfaz nenhuma operação.\\ \arrayrulecolor
 
 \section{Glossário de Termos Técnicos}\label{sec:termos}
 
-O quadro a seguir explica, em linguagem simples, os termos técnicos usados ao longo do documento.
+A tabela a seguir explica, em linguagem simples, os termos técnicos usados ao longo do documento.
 
 {\arrayrulecolor{ghlight}\setlength{\arrayrulewidth}{0.3pt}\renewcommand{\arraystretch}{1.0}\small\rowcolors{2}{ghbg}{white}
 \begin{xltabular}{\textwidth}{>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}X}
