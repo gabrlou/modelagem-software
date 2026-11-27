@@ -21,10 +21,10 @@
         <mxCell id="c7" parent="1" style="shape=folder;tabPosition=left;tabHeight=22;whiteSpace=wrap;html=1;fillColor=#EEF7EE;strokeColor=#666666;fontStyle=1;fontSize=13;align=left;verticalAlign=top;spacingLeft=8;spacingTop=-1;tabWidth=140;" value="Acesso a dados" vertex="1">
           <mxGeometry height="130" width="560" x="130" y="580" as="geometry" />
         </mxCell>
-        <mxCell id="c8" edge="1" parent="1" source="c5" style="html=1;rounded=0;dashed=1;endArrow=open;endFill=0;strokeColor=#333333;edgeStyle=none;fontSize=11;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="c6" value="usa as interfaces dos módulos">
+        <mxCell id="c8" edge="1" parent="1" source="c5" style="html=1;rounded=0;dashed=1;endArrow=open;endFill=0;strokeColor=#333333;edgeStyle=none;fontSize=11;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0.1158;entryDx=0;entryDy=0;entryPerimeter=0;" target="c6" value="usa as interfaces dos módulos">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="c9" edge="1" parent="1" source="c6" style="html=1;rounded=0;dashed=1;endArrow=open;endFill=0;strokeColor=#333333;edgeStyle=none;fontSize=11;exitX=0.259;exitY=1;exitDx=0;exitDy=0;entryX=0.518;entryY=0;entryDx=0;entryDy=0;" target="c7" value="usa">
+        <mxCell id="c9" edge="1" parent="1" source="c6" style="html=1;rounded=0;dashed=1;endArrow=open;endFill=0;strokeColor=#333333;edgeStyle=none;fontSize=11;exitX=0.259;exitY=1;exitDx=0;exitDy=0;entryX=0.518;entryY=0.1692;entryDx=0;entryDy=0;entryPerimeter=0;" target="c7" value="usa">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="c10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#333333;fontSize=13;align=center;verticalAlign=middle;spacingRight=24;" value="Controlador da Loja" vertex="1">
