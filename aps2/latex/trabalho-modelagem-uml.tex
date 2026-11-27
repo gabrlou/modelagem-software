@@ -324,9 +324,9 @@ Serviço de E-mail & Secundário (sistema externo) & Envia as mensagens de statu
 \fonte{elaborado pelos autores no draw.io (2026).}
 \end{figure}
 
-No diagrama, os casos de uso em \textbf{azul} são os principais, acionados diretamente por um ator (CU\nobreakdash-01 a CU\nobreakdash-06 e CU\nobreakdash-12), e os em \textbf{amarelo} são os de apoio, reutilizados ou opcionais (CU\nobreakdash-07 a CU\nobreakdash-11 e CU\nobreakdash-13). A cor só agrupa; o significado está nas formas e nas linhas.
-
 No diagrama, o retângulo é a fronteira do sistema. Os atores principais ficam à esquerda, e os secundários, que são sistemas externos, à direita. As linhas contínuas ligam cada ator aos casos de uso em que ele participa.
+
+Os casos de uso em \textbf{azul} são os principais, acionados diretamente por um ator (CU\nobreakdash-01 a CU\nobreakdash-06 e CU\nobreakdash-12), e os em \textbf{amarelo} são os de apoio, reutilizados ou opcionais (CU\nobreakdash-07 a CU\nobreakdash-11 e CU\nobreakdash-13). A cor só agrupa; o significado está nas formas e nas linhas.
 
 \subsection{Decisões de Modelagem}
 
@@ -355,7 +355,7 @@ A tabela a seguir explica os quatro tipos de relacionamento usados no diagrama.
 \endhead
 \endlastfoot
 Associação & \includegraphics[scale=0.5]{../assets/simbolos/associacao.pdf} & Liga cada ator aos casos de uso em que ele participa. & Visitante e CU\nobreakdash-01\\ \hline
-Generalização & \includegraphics[scale=0.5]{../assets/simbolos/generalizacao.pdf} & O Cliente herda do Visitante e pode fazer tudo o que o visitante faz. & Cliente $\to$ Visitante\\ \hline
+Generalização & \includegraphics[scale=0.5]{../assets/simbolos/generalizacao.pdf} & O ator mais específico herda do mais geral e pode fazer tudo o que ele faz. & Cliente $\to$ Visitante\\ \hline
 \texttt{<<include>>} & \includegraphics[scale=0.5]{../assets/simbolos/include.pdf} & O caso de origem sempre executa o de destino: passo obrigatório e reutilizável. & CU\nobreakdash-03 inclui CU\nobreakdash-09 Autenticar Usuário\\ \hline
 \texttt{<<extend>>} & \includegraphics[scale=0.5]{../assets/simbolos/extend.pdf} & Fluxo opcional que o caso de origem acrescenta ao de destino, só quando uma condição acontece. A condição fica em uma nota ligada à seta. & CU\nobreakdash-07 estende CU\nobreakdash-01, se há filtro ou busca\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
@@ -382,7 +382,7 @@ CU\nobreakdash-05 Gerenciar Produtos e Estoque & CU\nobreakdash-09 Autenticar Us
 CU\nobreakdash-06 Gerenciar Pedidos & CU\nobreakdash-09 Autenticar Usuário & A área administrativa é restrita.\\ \hline
 CU\nobreakdash-06 Gerenciar Pedidos & CU\nobreakdash-13 Notificar Cliente por E-mail & O cliente é avisado a cada mudança de status.\\ \hline
 CU\nobreakdash-08 Cancelar Pedido & CU\nobreakdash-13 Notificar Cliente por E-mail & O cliente é avisado do cancelamento.\\ \hline
-\rowcolor[gray]{0.93}\multicolumn{3}{l}{\texttt{<<extend>>} \textit{(opcional)}}\\ \hline
+\rowcolor[gray]{0.93}\multicolumn{3}{l}{\texttt{<<extend>>} \textit{(condicional)}}\\ \hline
 CU\nobreakdash-07 Filtrar / Buscar Produtos & CU\nobreakdash-01 Navegar no Catálogo & Quando o visitante aplica um filtro ou faz uma busca.\\ \hline
 CU\nobreakdash-08 Cancelar Pedido & CU\nobreakdash-04 Consultar Pedidos & Quando o cliente decide cancelar, e só se o pedido ainda não foi enviado.\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
@@ -507,7 +507,7 @@ Nome & CU\nobreakdash-06: Gerenciar Pedidos\\ \hline
 Atores envolvidos & \textbf{Administrador}. O \textbf{Serviço de E-mail} participa pelo caso de uso incluído (CU\nobreakdash-13).\\ \hline
 Pré-condições & Conta de administrador cadastrada e ao menos um pedido na loja.\\ \hline
 Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O \textbf{Administrador} se autentica (include, CU\nobreakdash-09). \item O \textbf{Administrador} filtra os pedidos por status, data ou cliente. \item O sistema lista os pedidos. \item O \textbf{Administrador} abre um pedido e escolhe o novo status (em separação, enviado ou entregue). \item O sistema valida a mudança e atualiza o pedido. \item O sistema avisa o \textbf{Cliente} por e-mail (include, CU\nobreakdash-13). \end{enumerate}\\ \hline
-Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 4, se o novo status é ``enviado'',\par então o \textbf{Administrador} informa o código de rastreio. \item[\textbf{A2}] No passo 4, se o \textbf{Administrador} cancela o pedido,\par então informa o motivo e o sistema segue o cancelamento (CU\nobreakdash-08). \item[\textbf{E1}] No passo 5, se a mudança de status não é permitida,\par então o sistema rejeita. \item[\textbf{E2}] No passo 5, se o envio não tem código de rastreio,\par então o sistema bloqueia.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 4, se o novo status é ``enviado'',\par então o \textbf{Administrador} informa o código de rastreio. \item[\textbf{A2}] No passo 4, se o \textbf{Administrador} cancela o pedido,\par então informa o motivo, e o sistema cancela, devolve o estoque, estorna se já pago e avisa o \textbf{Cliente} (CU\nobreakdash-13). \item[\textbf{E1}] No passo 5, se a mudança de status não é permitida,\par então o sistema rejeita. \item[\textbf{E2}] No passo 5, se o envio não tem código de rastreio,\par então o sistema bloqueia.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
 
 \Needspace{200pt}
@@ -586,7 +586,7 @@ Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,lab
 Nome & CU\nobreakdash-10: Calcular Frete\\ \hline
 Atores envolvidos & \textbf{Serviço de Frete}.\\ \hline
 Pré-condições & Carrinho com itens e CEP de entrega informado.\\ \hline
-Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O sistema envia o CEP e o peso e as dimensões dos itens ao \textbf{Serviço de Frete}. \item O \textbf{Serviço de Frete} devolve as opções de entrega. \item O sistema exibe o valor e o prazo de cada opção. \item O \textbf{Cliente} escolhe uma opção. \end{enumerate}\\ \hline
+Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O sistema envia o CEP e o peso e as dimensões dos itens ao \textbf{Serviço de Frete}. \item O \textbf{Serviço de Frete} devolve as opções de entrega. \item O sistema exibe o valor e o prazo de cada opção, para a escolha na finalização do pedido (CU\nobreakdash-03). \end{enumerate}\\ \hline
 Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{E1}] No passo 1, se o CEP é inválido,\par então o sistema pede a correção. \item[\textbf{E2}] No passo 1, se o \textbf{Serviço de Frete} está indisponível,\par então o sistema avisa e a finalização do pedido não avança.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
 
@@ -607,7 +607,7 @@ Nome & CU\nobreakdash-11: Processar Pagamento\\ \hline
 Atores envolvidos & \textbf{Gateway de Pagamento}.\\ \hline
 Pré-condições & Pedido criado, com a forma de pagamento escolhida.\\ \hline
 Fluxo principal & \begin{enumerate}[nosep,leftmargin=1.4em,label=\arabic*.,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item O sistema envia a cobrança ao \textbf{Gateway de Pagamento}, sem guardar dados de cartão. \item O \textbf{Gateway de Pagamento} aprova o pagamento. \item O sistema registra o resultado. \item O sistema passa o pedido para pago e dá baixa no estoque reservado. \end{enumerate}\\ \hline
-Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 2, se o pagamento é por Pix ou boleto,\par então o pedido aguarda o aviso de confirmação do \textbf{Gateway de Pagamento}. \item[\textbf{E1}] No passo 2, se o pagamento é recusado,\par então o \textbf{Cliente} pode tentar outra forma. \item[\textbf{E2}] No passo 1, se o \textbf{Gateway de Pagamento} está indisponível,\par então o pedido fica aguardando verificação, sem cobrança duplicada. \item[\textbf{E3}] No passo 2, se o prazo de pagamento expira,\par então o sistema cancela o pedido e devolve o estoque reservado.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
+Fluxos alternativos ou de exceção & \begin{itemize}[nosep,leftmargin=2.2em,labelwidth=2.2em,labelsep=0pt,align=left,itemsep=4pt,before=\vspace{-\baselineskip},after=\vspace{-0.4\baselineskip}]\item[\textbf{A1}] No passo 2, se o pagamento é por Pix ou boleto,\par então o pedido aguarda o aviso de confirmação do \textbf{Gateway de Pagamento}. \item[\textbf{E1}] No passo 2, se o pagamento é recusado,\par então o sistema registra a recusa, e a escolha de outra forma volta para a finalização do pedido (CU\nobreakdash-03). \item[\textbf{E2}] No passo 1, se o \textbf{Gateway de Pagamento} está indisponível,\par então o pedido fica aguardando verificação, sem cobrança duplicada. \item[\textbf{E3}] No passo 2, se o prazo de pagamento expira,\par então o sistema cancela o pedido e devolve o estoque reservado.\end{itemize}\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
 
 \Needspace{200pt}
@@ -812,7 +812,7 @@ usam a \emph{Comunicação com a API} para falar com o Backend, por isso a seta
 \rowcolor{ghbg}\textbf{Componente interno} & \textbf{Responsabilidade}\\ \arrayrulecolor{black}\midrule\arrayrulecolor{ghlight}
 \endhead
 \endlastfoot
-Catálogo e Busca & Listagem, filtros, busca e detalhes dos produtos (CU\nobreakdash-01).\\ \hline
+Catálogo e Busca & Listagem, filtros, busca e detalhes dos produtos (CU\nobreakdash-01 e CU\nobreakdash-07).\\ \hline
 Carrinho e Finalização do Pedido & Carrinho, escolha de frete e pagamento e confirmação do pedido (CU\nobreakdash-02 e CU\nobreakdash-03).\\ \hline
 Meus Pedidos & Consulta e cancelamento de pedidos (CU\nobreakdash-04 e CU\nobreakdash-08).\\ \hline
 Login e Cadastro & Cadastro de cliente e autenticação do cliente (CU\nobreakdash-09 e CU\nobreakdash-12).\\ \hline
@@ -958,7 +958,7 @@ Rio de Janeiro: ABNT, 2011.
 \endlastfoot
 RF-01 & Listar produtos do catálogo com filtros por categoria, marca e faixa de preço, além de busca por texto.\\ \hline
 RF-02 & Exibir detalhes do produto (descrição, preço, disponibilidade).\\ \hline
-RF-03 & Cadastrar e autenticar cliente (e-mail e senha).\\ \hline
+RF-03 & Cadastrar cliente e autenticar cliente e administrador (e-mail e senha).\\ \hline
 RF-04 & Adicionar, alterar e remover itens do carrinho.\\ \hline
 RF-05 & Calcular frete por CEP via serviço externo.\\ \hline
 RF-06 & Finalizar pedido (endereço, frete, forma de pagamento, confirmação).\\ \hline
@@ -988,7 +988,7 @@ RNF-02 & Acesso por perfil: área administrativa restrita ao Administrador.\\ \h
 RNF-03 & Dados de cartão não são armazenados pela loja (tratados pelo gateway de pagamento).\\ \hline
 RNF-04 & Interface responsiva (celular e desktop).\\ \hline
 RNF-05 & Falha em serviço externo não derruba o restante do sistema.\\ \hline
-RNF-06 & Arquitetura modular, com interfaces bem definidas, para trocar o gateway de pagamento ou o serviço de frete sem afetar o núcleo.\\ \arrayrulecolor{black}\bottomrule
+RNF-06 & Arquitetura modular, com interfaces bem definidas, para trocar o gateway de pagamento, o serviço de frete ou o de e-mail sem afetar o núcleo.\\ \arrayrulecolor{black}\bottomrule
 \end{xltabular}}
 
 \Needspace{10\baselineskip}

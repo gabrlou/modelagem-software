@@ -53,7 +53,7 @@ O tema é o **Site de Loja de Eletrônicos (e-commerce)**, uma loja virtual de p
 |---|---|
 | RF-01 | Listar produtos do catálogo com filtros por categoria, marca e faixa de preço, além de busca por texto |
 | RF-02 | Exibir detalhes do produto (descrição, preço, disponibilidade) |
-| RF-03 | Cadastrar e autenticar cliente (e-mail e senha) |
+| RF-03 | Cadastrar cliente e autenticar cliente e administrador (e-mail e senha) |
 | RF-04 | Adicionar, alterar e remover itens do carrinho |
 | RF-05 | Calcular frete por CEP via serviço externo |
 | RF-06 | Finalizar pedido (endereço, frete, forma de pagamento, confirmação) |
@@ -75,7 +75,7 @@ O tema é o **Site de Loja de Eletrônicos (e-commerce)**, uma loja virtual de p
 | RNF-03 | Dados de cartão não são armazenados pela loja (tratados pelo gateway de pagamento) |
 | RNF-04 | Interface responsiva (celular e desktop) |
 | RNF-05 | Falha em serviço externo não derruba o restante do sistema |
-| RNF-06 | Arquitetura modular, com interfaces bem definidas, para trocar o gateway de pagamento ou o serviço de frete sem afetar o núcleo |
+| RNF-06 | Arquitetura modular, com interfaces bem definidas, para trocar o gateway de pagamento, o serviço de frete ou o de e-mail sem afetar o núcleo |
 
 ---
 
@@ -247,7 +247,7 @@ Caixa **"Site de Loja de Eletrônicos"**. Dentro: casos de uso. Fora: Visitante,
   - **A1**: No passo 4, se o novo status é "enviado",
     - então o **Administrador** informa o código de rastreio.
   - **A2**: No passo 4, se o **Administrador** cancela o pedido,
-    - então informa o motivo e o sistema segue o cancelamento (CU-08).
+    - então informa o motivo, e o sistema cancela, devolve o estoque, estorna se já pago e avisa o **Cliente** (CU-13).
   - **E1**: No passo 5, se a mudança de status não é permitida,
     - então o sistema rejeita.
   - **E2**: No passo 5, se o envio não tem código de rastreio,
@@ -304,8 +304,7 @@ Caixa **"Site de Loja de Eletrônicos"**. Dentro: casos de uso. Fora: Visitante,
 - **Fluxo principal:**
   1. O sistema envia o CEP e o peso e as dimensões dos itens ao **Serviço de Frete**.
   2. O **Serviço de Frete** devolve as opções de entrega.
-  3. O sistema exibe o valor e o prazo de cada opção.
-  4. O **Cliente** escolhe uma opção.
+  3. O sistema exibe o valor e o prazo de cada opção, para a escolha na finalização do pedido (CU-03).
 - **Fluxos alternativos ou de exceção:**
   - **E1**: No passo 1, se o CEP é inválido,
     - então o sistema pede a correção.
@@ -324,7 +323,7 @@ Caixa **"Site de Loja de Eletrônicos"**. Dentro: casos de uso. Fora: Visitante,
   - **A1**: No passo 2, se o pagamento é por Pix ou boleto,
     - então o pedido aguarda o aviso de confirmação do **Gateway de Pagamento**.
   - **E1**: No passo 2, se o pagamento é recusado,
-    - então o **Cliente** pode tentar outra forma.
+    - então o sistema registra a recusa, e a escolha de outra forma volta para a finalização do pedido (CU-03).
   - **E2**: No passo 1, se o **Gateway de Pagamento** está indisponível,
     - então o pedido fica aguardando verificação, sem cobrança duplicada.
   - **E3**: No passo 2, se o prazo de pagamento expira,
@@ -401,7 +400,7 @@ São dois diagramas micro: um do **Frontend** e um do **Backend**.
 
 | Componente interno | Responsabilidade |
 |---|---|
-| Catálogo e Busca | Listagem, filtros, busca e detalhes (CU-01) |
+| Catálogo e Busca | Listagem, filtros, busca e detalhes (CU-01 e CU-07) |
 | Carrinho e Finalização do Pedido | Carrinho, frete, pagamento e confirmação (CU-02 e CU-03) |
 | Meus Pedidos | Acompanhar e cancelar pedidos (CU-04 e CU-08) |
 | Login e Cadastro | Cadastro e autenticação do cliente (CU-09 e CU-12) |
