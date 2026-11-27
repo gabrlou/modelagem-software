@@ -329,6 +329,8 @@
 \section{Diagrama de Casos de Uso}
 % =============================================================================
 
+\slideDiagrama{2.1 --- Diagrama de Casos de Uso (Figura 1)}{CU_CasosDeUso.pdf}
+
 % --- Carlos ---
 \begin{frame}[plain]\begin{tela}
   \fundo{2.1}{ATORES}{Três usuários e três sistemas externos}
@@ -351,17 +353,11 @@
 \begin{frame}[plain]\begin{tela}
   \fundo{2.1}{LEITURA DO DIAGRAMA}{Como ler o diagrama de casos de uso}
     {As formas e as linhas dão o significado; as cores só agrupam}
-  \fill[white] \pto{25}{64} rectangle \pto{223.1889081455806}{237};
-  \draw[Borda, line width=0.5pt] \pto{25}{64} rectangle \pto{223.1889081455806}{237};
-  \node[anchor=north west, inner sep=0pt] at \pto{28.0}{64.0} {\includegraphics[trim=0.0bp 0.0bp 0.0bp 0.0bp, clip, width=192.2pt]{CU_CasosDeUso.pdf}};
-  \mk{123.8}{71.0}{1}
-  \mk{60.9}{71.0}{2}
-  \mk{138.9}{71.0}{3}
-  \mk{41.6}{98.3}{4}
-  \pnum{231.1889081455806}{64.0}{197.8110918544194}{40.2}{1}{\textbf{Fronteira:} o retângulo é o sistema modelado.}
-  \pnum{231.1889081455806}{108.2}{197.8110918544194}{40.2}{2}{\textbf{Azul:} os 7 casos principais, acionados por um ator.}
-  \pnum{231.1889081455806}{152.5}{197.8110918544194}{40.2}{3}{\textbf{Amarelo:} os 6 casos de apoio, reutilizados ou condicionais.}
-  \pnum{231.1889081455806}{196.8}{197.8110918544194}{40.2}{4}{\textbf{Linha contínua:} liga o ator aos casos em que participa.}
+  \linhasimb{80}{28}{fronteira.pdf}{Fronteira}{Retângulo com o nome do sistema: tudo o que está dentro é o que foi modelado.}
+  \linhasimb{112}{28}{ator.pdf}{Ator}{Boneco: usuário (principal) ou sistema externo, com {\guillemotleft}sistema{\guillemotright} (secundário).}
+  \linhasimb{144}{28}{caso_uso.pdf}{Caso de uso}{Elipse: azul para os 7 principais, amarelo para os 6 de apoio.}
+  \linhasimb{176}{24}{associacao.pdf}{Associação}{Linha contínua: liga cada ator aos casos de uso em que participa.}
+  \linhasimb{204}{24}{nota.pdf}{Nota}{Guarda a condição de cada \ext, ligada à seta por linha tracejada.}
 \end{tela}\end{frame}
 
 % --- Carlos ---
@@ -589,6 +585,8 @@
 \section{Diagramas de Componentes}
 % =============================================================================
 
+\slideDiagrama{3.1 --- Diagrama de Componentes: Visão Geral (Figura 2)}{CMP_Geral.pdf}
+
 % --- Luiz ---
 \begin{frame}[plain]\begin{tela}
   \fundo{3}{COMPONENTES}{Uma aplicação web em cinco pacotes}
@@ -609,20 +607,12 @@
 % --- Luiz ---
 \begin{frame}[plain]\begin{tela}
   \fundo{3.1}{LEITURA DO DIAGRAMA}{Como ler o diagrama de componentes}
-    {Cada símbolo tem um significado; as cores identificam os pacotes}
-  \fill[white] \pto{25}{64} rectangle \pto{290}{237};
-  \draw[Borda, line width=0.5pt] \pto{25}{64} rectangle \pto{290}{237};
-  \node[anchor=north west, inner sep=0pt] at \pto{25.0}{64.0} {\includegraphics[trim=132.9bp 245.0bp 552.2bp 0.0bp, clip, width=265.0pt]{CMP_Geral.pdf}};
-  \mk{96.5}{146.7}{1}
-  \mk{128.8}{117.1}{2}
-  \mk{57.4}{97.4}{3}
-  \mk{166.1}{143.4}{4}
-  \mk{32.0}{100.8}{5}
-  \pnum{298}{64.0}{131}{31.4}{1}{\textbf{Componente:} retângulo com o ícone.}
-  \pnum{298}{99.4}{131}{31.4}{2}{\textbf{Pirulito:} interface fornecida.}
-  \pnum{298}{134.8}{131}{31.4}{3}{\textbf{Soquete:} interface requerida.}
-  \pnum{298}{170.2}{131}{31.4}{4}{\textbf{Porta:} quadrado na borda.}
-  \pnum{298}{205.6}{131}{31.4}{5}{\textbf{Seta tracejada:} dependência entre pacotes.}
+    {Cada símbolo tem um significado; as cores só identificam os pacotes}
+  \linhasimb{80}{28}{componente.pdf}{Componente}{Módulo do sistema, com o ícone de componente no canto.}
+  \linhasimb{112}{28}{interface_fornecida.pdf}{Interface fornecida}{Pirulito: o serviço que o componente oferece.}
+  \linhasimb{144}{28}{interface_requerida.pdf}{Interface requerida}{Soquete: o serviço de que o componente precisa.}
+  \linhasimb{176}{24}{porta.pdf}{Porta}{Quadrado na borda: HTTPS da API e webhook do pagamento.}
+  \linhasimb{204}{24}{dependencia.pdf}{Dependência}{Seta tracejada entre pacotes. Cores: Frontend azul, Backend verde, Integrações amarelo, Externos lilás, Dados rosa.}
 \end{tela}\end{frame}
 
 % --- Luiz ---
@@ -709,6 +699,8 @@
   \pnum{298}{196.8}{131}{40.2}{4}{Notificações usa \texttt{IEmail}: avisar.}
 \end{tela}\end{frame}
 
+\slideDiagrama{3.4 --- Detalhe Interno: Frontend (Figura 3)}{CMP_Frontend.pdf}
+
 % --- Yury ---
 \begin{frame}[plain]\begin{tela}
   \fundo{3.4}{DETALHE INTERNO · FRONTEND}{Telas independentes e um único ponto de saída}
@@ -721,6 +713,8 @@
   \pcard{287.2937313432836}{142.0}{141.70626865671642}{51.0}{PFront}{Painel Administrativo}{Login do Administrador (CU-09), Produtos e Estoque (CU-05), Pedidos (CU-06).}
   \pcard{287.2937313432836}{197.0}{141.70626865671642}{40.0}{Destaque}{Comunicação com a API}{Única que requer \texttt{IApi}; sessão e HTTPS.}
 \end{tela}\end{frame}
+
+\slideDiagrama{3.5 --- Detalhe Interno: Backend (Figura 4)}{CMP_Backend.pdf}
 
 % --- Yury ---
 \begin{frame}[plain]\begin{tela}
